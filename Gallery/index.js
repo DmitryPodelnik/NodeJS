@@ -3,7 +3,6 @@ const HTTP_PORT = 88;
 
 // Подключение модуля
 const http = require('http');
-const { Http2ServerRequest } = require('http2');
 
 // Серверная функция
 function serverFunction(request, response) {
