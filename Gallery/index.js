@@ -9,17 +9,17 @@ function serverFunction(request, response) {
     console.log(request.method + " " + request.url);
 
     const url = request.url.substring(1)
-    if (url == '') {
+    if (url === '') {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html');
         response.end("<h1>Home, sweet Home</h1>"); // ~getWriter().print
     }
-    else if (url == 'hello') {
+    else if (url === 'hello') {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html');
         response.end("<h1>Hello, world</h1>"); // ~getWriter().print
     } 
-    else if (url == 'js') {
+    else if (url === 'js') {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html');
         response.end("<h1>Node is cool</h1>"); // ~getWriter().print
