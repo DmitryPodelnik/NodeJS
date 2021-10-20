@@ -1,6 +1,6 @@
 // Сервер на JS
 const HTTP_PORT = 80;
-const WWW_ROOT = "../www";
+const WWW_ROOT = "www";
 const FILE_404 = WWW_ROOT + "/404.html";
 
 // Подключение модуля
@@ -22,7 +22,7 @@ function serverFunction(request, response) {
     const url = request.url.substring(1)
     if (url === '') {
         // запрос / - передаем индексный файл
-        sendFile("../www/index.html", response);
+        sendFile("www/index.html", response);
        // response.end("<meta charset='utf-8'/><h1>Home, sweet Home привет</h1>"); // ~getWriter().print
     }
     else if (url === 'hello') {
