@@ -12,6 +12,7 @@ const { log } = require('console');
 function serverFunction(request, response) {
     // логируем запрос - это must have для всех серверов
     console.log(request.method + " " + request.url);
+    // TODO: проверить запрос на спецсимволы (../)
     // проверяем, является ли запрос файлом
     const path = WWW_ROOT + request.url;
     if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {  // да, такой файл существует
