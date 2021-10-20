@@ -2,6 +2,7 @@
 const HTTP_PORT = 80;
 const WWW_ROOT = "www";
 const FILE_404 = WWW_ROOT + "/404.html";
+const INDEX_HTML = WWW_ROOT + "/index.html";
 
 // Подключение модуля
 const http = require('http');
@@ -12,18 +13,22 @@ const { log } = require('console');
 function serverFunction(request, response) {
     // логируем запрос - это must have для всех серверов
     console.log(request.method + " " + request.url);
+
+
     // TODO: проверить запрос на спецсимволы (../)
     // проверяем, является ли запрос файлом
     const path = WWW_ROOT + request.url;
     if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {  // да, такой файл существует
-        sendFile(path, response);
+
+        const extension = getExtension(request.url);
+        sendFile(path, response, extension);
         return;
     }
     // нет, это не файл. Маршрутизируем
     const url = request.url.substring(1)
     if (url === '') {
         // запрос / - передаем индексный файл
-        sendFile("www/index.html", response);
+        sendFile(INDEX_HTML, response);
        // response.end("<meta charset='utf-8'/><h1>Home, sweet Home привет</h1>"); // ~getWriter().print
     }
     else if (url === 'hello') {
@@ -57,7 +62,7 @@ server.listen(  // регистрируемся в ОС на получение 
 );
 
 /// задание
-async function sendFile2(path, response, statusCode) {
+async function sendFile2(path, response, extension, statusCode) {
     fs.readFile(
         path,  // путь к файлу
         // callback - выполнится после открытия файла
@@ -73,13 +78,16 @@ async function sendFile2(path, response, statusCode) {
                 response.statusCode = 404;
             }
             response.statusCode = statusCode;
-            response.setHeader('Content-Type', 'text/html; charset=utf-8');
+            response.setHeader('Content-Type', `text/html; charset=utf-8`);
+            if (extension === 'css') {
+                response.setHeader('Content-Type', `text/css; charset=utf-8`);
+            }
             response.end(data);
         }
     );
 }
 
-async function sendFile(path, response, statusCode = 200) {
+async function sendFile(path, response, extension, statusCode = 200) {
         // Stream - piping: stream copy from readable stream to writable
     var readStream = false;
     if (fs.existsSync(path)) {
@@ -89,7 +97,10 @@ async function sendFile(path, response, statusCode = 200) {
         statusCode = 404;
     }
 
-    response.setHeader('Content-Type', 'text/html; charset=utf-8');
+    response.setHeader('Content-Type', `text/html; charset=utf-8`);
+    if (extension === 'css') {
+        response.setHeader('Content-Type', `text/css; charset=utf-8`);
+    }
 
     if (readStream) {
         response.statusCode = statusCode;
@@ -109,4 +120,8 @@ async function sendFile(path, response, statusCode = 200) {
     // 1. ищем файл, если есть - отправляем
     // 2. если нет - ищем 404, отправляем (если есть)
     // 3. если нет - отправляем строку 418 кодом
+}
+
+function getExtension(file) {
+    return file.substring(file.lastIndexOf('.') + 1);
 }
