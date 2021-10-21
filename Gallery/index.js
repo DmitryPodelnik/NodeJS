@@ -57,15 +57,12 @@ function serverFunction(request, response) {
         sendFile(INDEX_HTML, response);
        // response.end("<meta charset='utf-8'/><h1>Home, sweet Home привет</h1>"); // ~getWriter().print
     }
-    else if (url === 'hello') {
-        response.statusCode = 200;
-        response.setHeader('Content-Type', 'text/html; charset=utf-8');
-        response.end("<h1>Hello, world</h1>"); // ~getWriter().print
+    else if (url.indexOf("api/") == 0) { // запрос начинается с api/
+        processApi(request, response);
+        return;
     } 
     else if (url === 'js') {
-        response.statusCode = 200;
-        response.setHeader('Content-Type', 'text/html; charset=utf-8');
-        response.end("<h1>Node is cool</h1>"); // ~getWriter().print
+
     }
     else {
         // необработанный запрос - "не найдено" (404.html)
@@ -171,4 +168,14 @@ function getMimeType(path) {
         default :
             return DEFAULT_MIME;
     }
+}
+
+// обработка запросов api/*
+async function processApi(request, response) {
+    var res = {};
+
+    res.status = "Works";
+
+    response.setHeader('Content-Type', 'application/json');
+    response.end(JSON.stringify(res));
 }
