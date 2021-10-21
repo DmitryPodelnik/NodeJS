@@ -15,7 +15,7 @@ document.addEventListener("submit", (e) => {
     formData.append("input[name=description]", descr.value);
     formData.append("input[name=place]", place.value);
 
-    fetch("/?" + new URLSearchParams(formData).toString(), {
+    fetch("/api/picture?" + new URLSearchParams(formData).toString(), {
         method: "GET", 
         data: formData
     }).then(r => r.text()).then(console.log);

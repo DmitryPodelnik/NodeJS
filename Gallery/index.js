@@ -58,6 +58,7 @@ function serverFunction(request, response) {
        // response.end("<meta charset='utf-8'/><h1>Home, sweet Home привет</h1>"); // ~getWriter().print
     }
     else if (url.indexOf("api/") == 0) { // запрос начинается с api/
+        request.params = params;
         processApi(request, response);
         return;
     } 
@@ -175,6 +176,8 @@ async function processApi(request, response) {
     var res = {};
 
     res.status = "Works";
+    // упражнение: включить в ответ все принятые параметры запроса
+    res.params = request.params;
 
     response.setHeader('Content-Type', 'application/json');
     response.end(JSON.stringify(res));
