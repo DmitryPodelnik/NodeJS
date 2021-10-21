@@ -10,10 +10,23 @@ const fs   = require( "fs" ) ;   // file system
 
 // Серверная функция
 function serverFunction( request, response ) {
+    // определение данных из тела запроса (POST-данных)
+    /* Если запрос большой, то тело может передаваться частями (chunk-ами).
+       Для работы с телом, его необходимо сначала получить (собрать), затем обрабатывать.
+       Приход chunk-а сопровождается событием "data", конец пакета - событие "end" */
+    requestBody = [];  // массив chunk-ов
+    request.on("data", chunk => requestBody.push(chunk))
+           .on("end", () => {  // конец получения пакета (запроса)
+               request.params = { 
+                   body: Buffer.concat(requestBody).toString() 
+                };
+               analyze(request, response);
+           });
+}
+
+function analyze(request, response) {
     // логируем запрос - это must have для всех серверов
     console.log( request.method + " " + request.url );
-    
-    
     // Декодируем запрос: "+" -> пробел, затем decodeURI
     var decodedUrl = request.url.replace(/\+/g, ' ');
     decodedUrl = decodeURIComponent( decodedUrl);
@@ -61,7 +74,7 @@ function serverFunction( request, response ) {
         sendFile( "www/index.html", response ) ;
     }
     else if( url.indexOf( "api/" ) == 0 ) {  // запрос начинается с api/
-        request.params = params;
+        request.params.query = params;
         processApi( request, response ) ;
         return ;
     }
