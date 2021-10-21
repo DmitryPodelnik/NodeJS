@@ -12,12 +12,28 @@ const fs = require('fs');  // file system
 // Серверная функция
 function serverFunction(request, response) {
     // логируем запрос - это must have для всех серверов
+
+    // разделяем запрос по "?" - отделяем параметры
+    const requestParts = request.url.split('?');
+    // первая часть (до ?) - сам запрос
+    const requestUrl = requestParts[0];
+
+
+
     console.log(request.method + " " + request.url);
-
-
-    // TODO: проверить запрос на спецсимволы (../)
+    // проверить запрос на спецсимволы (../)
+    const restricted = ["../", ";"];
+    for (let part of restricted) {
+        if (requestUrl.indexOf(part) !== -1) {
+            // TODO: создать страницу "Опасный запрос"
+            response.statusCode = 418;
+            response.setHeader('Content-Type', 'text/plain');
+            response.end('I am a teapot');
+            return;
+        }
+    }
     // проверяем, является ли запрос файлом
-    const path = WWW_ROOT + request.url;
+    const path = WWW_ROOT + requestUrl;
     if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {  // да, такой файл существует
 
         const extension = getMimeType(request.url);
@@ -25,7 +41,7 @@ function serverFunction(request, response) {
         return;
     }
     // нет, это не файл. Маршрутизируем
-    const url = request.url.substring(1)
+    const url = requestUrl.substring(1)
     if (url === '') {
         // запрос / - передаем индексный файл
         sendFile(INDEX_HTML, response);
