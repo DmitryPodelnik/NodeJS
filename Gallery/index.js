@@ -79,6 +79,18 @@ function analyze(request, response) {
         processApi(request, response);
         return;
     }
+    else if (url === 'hello') {
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'text/html');
+        response.setHeader('Content-Type', 'text/html; charset=utf-8');
+        response.end("<h1>Hello, world</h1>"); // ~getWriter().print in java 
+    } 
+    else if (url === 'js') {
+        response.statusCode = 200;
+        response.setHeader('Content-Type', 'text/html');
+        response.setHeader('Content-Type', 'text/html; charset=utf-8');
+        response.end("<h1>Node is cool</h1>"); // ~getWriter().print in java
+    }
     else {
         // необработанный запрос - "не найдено" (404.html)
         sendFile(FILE_404, response, 404);
@@ -107,8 +119,9 @@ async function sendFile2(path, response, statusCode) {
                 console.error(err);
                 return;
             }
-            if (typeof statusCode == 'undefined')
+            if (typeof statusCode == 'undefined') {
                 statusCode = 200;
+            }
             response.statusCode = statusCode;
             response.setHeader('Content-Type', 'text/html; charset=utf-8');
             response.end(data);
