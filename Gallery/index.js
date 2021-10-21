@@ -20,7 +20,7 @@ function serverFunction(request, response) {
     const path = WWW_ROOT + request.url;
     if (fs.existsSync(path) && fs.lstatSync(path).isFile()) {  // да, такой файл существует
 
-        const extension = getExtension(request.url);
+        const extension = getMimeType(request.url);
         sendFile(path, response, extension);
         return;
     }
@@ -78,10 +78,7 @@ async function sendFile2(path, response, extension, statusCode) {
                 response.statusCode = 404;
             }
             response.statusCode = statusCode;
-            response.setHeader('Content-Type', `text/html; charset=utf-8`);
-            if (extension === 'css') {
-                response.setHeader('Content-Type', `text/css; charset=utf-8`);
-            }
+            response.setHeader('Content-Type', getMimeType(path));
             response.end(data);
         }
     );
@@ -97,16 +94,13 @@ async function sendFile(path, response, extension, statusCode = 200) {
         statusCode = 404;
     }
 
-    response.setHeader('Content-Type', `text/html; charset=utf-8`);
-    if (extension === 'css') {
-        response.setHeader('Content-Type', `text/css; charset=utf-8`);
-    }
-
     if (readStream) {
         response.statusCode = statusCode;
+        response.setHeader('Content-Type', getMimeType(path));
         readStream.pipe(response);
     } else {
         response.statusCode = 418;
+        response.setHeader('Content-Type', 'text/plain');
         response.end('I am a teapot');
     }
 
@@ -122,12 +116,12 @@ async function sendFile(path, response, extension, statusCode = 200) {
     // 3. если нет - отправляем строку 418 кодом
 }
 
-function getExtension(file) {
+function getMimeType(path) {
     // file extension
-    if (!file) {
+    if (!path) {
         return false;
     }
-    const dotPosition = file.lastIndexOf('.');
+    const dotPosition = path.lastIndexOf('.');
     if (dotPosition == -1) {  // no extension
         return DEFAULT_MIME;
     }
@@ -143,6 +137,11 @@ function getExtension(file) {
         case 'gif'  :
         case 'png'  :
             return 'image/' + extension;
+        case 'json' :
+        case 'pdf'  :
+        case 'rtf'  :    
+            return 'application/' + extension;
+
         default :
             return DEFAULT_MIME;
     }
