@@ -11,10 +11,14 @@ const fs   = require( "fs" ) ;   // file system
 // Серверная функция
 function serverFunction( request, response ) {
     // логируем запрос - это must have для всех серверов
-    console.log( request.method + " " + request.url ) ;
+    console.log( request.method + " " + request.url );
     
+    
+    // Декодируем запрос: "+" -> пробел, затем decodeURI
+    var decodedUrl = request.url.replace(/\+/g, ' ');
+    decodedUrl = decodeURIComponent( decodedUrl);
     // разделяем запрос по "?" - отделяем параметры
-    const requestParts = decodeURI(request.url).split( "?" );
+    const requestParts = decodedUrl.split( "?" );
     // первая часть (до ?) - сам запрос
     const requestUrl = requestParts[ 0 ] ;
     // вторая часть - параметры по схеме key1=val1 & key2=val2
