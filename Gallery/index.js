@@ -3,11 +3,11 @@ const HTTP_PORT = 80;
 const WWW_ROOT = "www";
 const FILE_404 = WWW_ROOT + "/404.html";
 const INDEX_HTML = WWW_ROOT + "/index.html";
+const DEFAULT_MIME = "application/octet-stream";
 
 // Подключение модуля
 const http = require('http');
 const fs = require('fs');  // file system
-const { log } = require('console');
 
 // Серверная функция
 function serverFunction(request, response) {
@@ -123,5 +123,27 @@ async function sendFile(path, response, extension, statusCode = 200) {
 }
 
 function getExtension(file) {
-    return file.substring(file.lastIndexOf('.') + 1);
+    // file extension
+    if (!file) {
+        return false;
+    }
+    const dotPosition = file.lastIndexOf('.');
+    if (dotPosition == -1) {  // no extension
+        return DEFAULT_MIME;
+    }
+    const extension = path.substring(dotPosition + 1);
+    switch (extension) {
+        case 'html' :
+        case 'css'  :
+            return 'text/' + extension;
+        case 'jpeg' :
+        case 'jpg'  :
+            return 'image/jpeg';
+        case 'bmp'  :
+        case 'gif'  :
+        case 'png'  :
+            return 'image/' + extension;
+        default :
+            return DEFAULT_MIME;
+    }
 }
