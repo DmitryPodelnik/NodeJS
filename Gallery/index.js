@@ -1,4 +1,4 @@
-/ Сервер на JS
+// Сервер на JS
 const HTTP_PORT    = 80 ;
 const WWW_ROOT     = "www" ;
 const FILE_404     = WWW_ROOT + "/404.html" ;
@@ -14,7 +14,7 @@ function serverFunction( request, response ) {
     console.log( request.method + " " + request.url ) ;
     
     // разделяем запрос по "?" - отделяем параметры
-    const requestParts = request.url.split( "?" ) ;
+    const requestParts = decodeURI(request.url).split( "?" );
     // первая часть (до ?) - сам запрос
     const requestUrl = requestParts[ 0 ] ;
     // вторая часть - параметры по схеме key1=val1 & key2=val2
