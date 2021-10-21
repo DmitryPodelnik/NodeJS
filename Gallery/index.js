@@ -17,8 +17,17 @@ function serverFunction(request, response) {
     const requestParts = request.url.split('?');
     // первая часть (до ?) - сам запрос
     const requestUrl = requestParts[0];
-
-
+    // вторая часть - параметры по схеме key1=val1&key2=val2
+    var params = {};
+    if (requestParts.length > 1) {  // есть вторая часть
+        for (let keyval of requestParts[1].split('=')) {
+            let pair = keyval.split('=');
+            params[pair[0]] = typeof pair[1] == 'undefined' 
+            ? null
+            : pair[1];
+        }
+    }
+    console.log(params);
 
     console.log(request.method + " " + request.url);
     // проверить запрос на спецсимволы (../)
