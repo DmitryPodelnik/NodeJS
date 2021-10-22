@@ -33,3 +33,9 @@ document.addEventListener("submit",(e)=>{
         body: formData  // new URLSearchParams(formData).toString()
     }).then(r=>r.text()).then(console.log);
 });
+
+/* 
+    В случае удачной загрузки изображения, вывести (добавить на страницу) 
+    эту картинку и описание / место (если есть) + очистить форму.
+    В случае неудачной - вывести (alert) и не очищать форму.
+*/

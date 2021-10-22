@@ -207,6 +207,10 @@ async function processApi(request, response) {
         if (validateRes === true) {
             // OK
             const savedName = moveUploadedFile(files.picture)
+            if (savedName !== "uploadError") {
+               console.log("success");
+               
+            }
             res.status ="Works" + savedName;
         } else {
             // Validation error,validateRes - message
@@ -229,11 +233,13 @@ function moveUploadedFile(file) {
     do {
         savedName = `(${counter++})_${file.name}`;
     } while(fs.existsSync(UPLOAD_PATH + savedName));
+
     // rename - если на одном и том же диске находится,
     // или использовать copyFile
     fs.copyFile(file.path, UPLOAD_PATH + savedName, err => {
         if (err) {
             console.log(err);
+            savedName = "uploadError";
         }
     });
     return savedName;
@@ -241,10 +247,6 @@ function moveUploadedFile(file) {
 
 function validatePictureForm(fields, files) {
     // задание: проверить поля на наличие и допустимость
-    // if (fields["place"].length === 0) {
-    //     console.log("Please fill the place");
-    //     return false;
-    // }
 
     if (typeof fields["description"] == 'undefined') {
         return "Description required";
