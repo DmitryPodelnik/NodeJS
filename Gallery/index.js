@@ -229,6 +229,8 @@ function moveUploadedFile(file) {
     do {
         savedName = `(${counter++})_${file.name}`;
     } while(fs.existsSync(UPLOAD_PATH + savedName));
+    // rename - если на одном и том же диске находится,
+    // или использовать copyFile
     fs.copyFile(file.path, UPLOAD_PATH + savedName, err => {
         if (err) {
             console.log(err);
