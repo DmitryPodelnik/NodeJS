@@ -197,3 +197,24 @@ async function processApi(request, response) {
     response.setHeader('Content-Type', 'application/json');
     response.end(JSON.stringify(res));
 }
+
+/* 
+    npm Node Pack Manager
+    1. Инициализация папки - создание файла package.json
+       npm init 
+       npm init -y
+    
+    2. Установка пакетов
+       npm install <pack-name>
+       npm i <pack-name>
+
+    3. Команда(ы) запуска 
+       "scripts": {
+            "start": "node index.js",  // npm start
+            "mystart": "node index.js",  // npm run start
+            "test": "echo \"Error: no test specified\" && exit 1"
+        }
+
+    formidable - пакет для приема данных формы (в т.ч. файлов)
+    npm i formidable
+*/
