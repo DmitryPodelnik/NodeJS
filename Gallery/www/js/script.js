@@ -17,7 +17,10 @@ document.addEventListener("submit",(e)=>{
 
     const formData = new FormData();
     formData.append("description", descr.value);
-    formData.append("place", place.value);
+    // place optional, include if not empty
+    if (place.value.length > 0) {
+        formData.append("place", place.value);
+    }
     formData.append("picture", picture.files[0]);
 
 
@@ -25,7 +28,7 @@ document.addEventListener("submit",(e)=>{
     //     method: "GET"
     // }).then(r=>r.text()).then(console.log);
 
-    fetch("/api/picture?x=10" + new URLSearchParams(formData).toString(), {
+    fetch("/api/picture?x=10&" + new URLSearchParams(formData).toString(), {
         method: "POST",
         body: formData  // new URLSearchParams(formData).toString()
     }).then(r=>r.text()).then(console.log);

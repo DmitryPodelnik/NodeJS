@@ -4,6 +4,7 @@ const WWW_ROOT = "www";
 const FILE_404 = WWW_ROOT + "/404.html";
 const INDEX_HTML = WWW_ROOT + "/index.html";
 const DEFAULT_MIME = "application/octet-stream";
+const UPLOAD_PATH  = WWW_ROOT + "/pictures/";
 
 // Подключение модулей
 const http       = require("http");         // HTTP
@@ -190,7 +191,7 @@ function getMimeType(path) {
 
 // Обратка запросов   api/*
 async function processApi(request, response) {
-    var res = {};
+    var res = { status: "" };
     // принять данные формы
     // ! отключить (если есть) наш обработчик событий data/end
     const formParser = formidable.IncomingForm();
@@ -200,15 +201,74 @@ async function processApi(request, response) {
             send500();
             return;
         }
-        console.log(err, fields, files);
+        // console.log(fields, files);
+        // console.log(files["picture"]);
+        let validateRes = validatePictureForm(fields, files);
+        if (validateRes === true) {
+            // OK
+            const savedName = moveUploadedFile(files.picture)
+            res.status ="Works" + savedName;
+        } else {
+            // Validation error,validateRes - message
+            send412(validateRes);
+            return;
+        }
+
+        response.setHeader('Content-Type', 'application/json');
+        response.end(JSON.stringify(res));
     });
     // return;
     res.status = "Works";
     // упражнение: включить в ответ все принятые параметры запроса
     res.params = request.params;
+}
 
-    response.setHeader('Content-Type', 'application/json');
-    response.end(JSON.stringify(res));
+function moveUploadedFile(file) {
+    var counter = 1;
+    var savedName;
+    do {
+        savedName = `(${counter++})_${file.name}`;
+    } while(fs.existsSync(UPLOAD_PATH + savedName));
+    fs.copyFile(file.path, UPLOAD_PATH + savedName, err => {
+        if (err) {
+            console.log(err);
+        }
+    });
+    return savedName;
+}
+
+function validatePictureForm(fields, files) {
+    // задание: проверить поля на наличие и допустимость
+    // if (fields["place"].length === 0) {
+    //     console.log("Please fill the place");
+    //     return false;
+    // }
+
+    if (typeof fields["description"] == 'undefined') {
+        return "Description required";
+    }
+
+    if (fields["description"].length == 0) {
+        return "Description should be non-empty";
+    }
+
+    // place optional. But if present then should be non-empty
+    if (typeof files["place"] != 'undefined'
+        && fields["place"].length == 0) {
+        return "Place should be non-empty";
+    }
+
+    if (typeof files["picture"] == 'undefined') {
+       return "File required";
+    }
+
+    return true;
+} 
+
+async function send412(message) {
+    response.statusCode = 412;
+    response.setHeader('Content-Type', 'text/plain');
+    response.end("Precondition Failed: " + message);
 }
 
 async function send418() {
@@ -223,6 +283,7 @@ async function send500() {
     response.setHeader('Content-Type', 'text/plain');
     response.end("Error in server");
 }
+
 
 /* 
     npm Node Pack Manager
