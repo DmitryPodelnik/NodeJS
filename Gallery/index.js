@@ -5,9 +5,10 @@ const FILE_404 = WWW_ROOT + "/404.html";
 const INDEX_HTML = WWW_ROOT + "/index.html";
 const DEFAULT_MIME = "application/octet-stream";
 
-// Подключение модуля
-const http = require("http");
-const fs = require("fs");   // file system
+// Подключение модулей
+const http       = require("http");         // HTTP
+const fs         = require("fs");           // file system
+const formidable = require("formidable");   // Form parser
 
 // Серверная функция
 function serverFunction(request, response) {
@@ -15,14 +16,18 @@ function serverFunction(request, response) {
     /* Если запрос большой, то тело может передаваться частями (chunk-ами).
        Для работы с телом, его необходимо сначала получить (собрать), затем обрабатывать.
        Приход chunk-а сопровождается событием "data", конец пакета - событие "end" */
-    requestBody = [];  // массив chunk-ов
-    request.on("data", chunk => requestBody.push(chunk))
-        .on("end", () => {  // конец получения пакета (запроса)
-            request.params = {
-                body: Buffer.concat(requestBody).toString()
-            };
-            analyze(request, response);
-        });
+    // requestBody = [];  // массив chunk-ов
+    // request.on("data", chunk => requestBody.push(chunk))
+    //     .on("end", () => {  // конец получения пакета (запроса)
+    //         request.params = {
+    //             body: Buffer.concat(requestBody).toString()
+    //         };
+    //         analyze(request, response);
+    //     });
+    request.params = {
+        body: ""
+    };
+    analyze(request, response);
 }
 
 function analyze(request, response) {
@@ -53,10 +58,7 @@ function analyze(request, response) {
     const restrictedParts = ["../", ";"];
     for (let part of restrictedParts) {
         if (requestUrl.indexOf(part) !== -1) {
-            // TODO: создать страницу "Опасный запрос"
-            response.statusCode = 418;
-            response.setHeader('Content-Type', 'text/plain');
-            response.end("I'm a teapot");
+            send418();
             return;
         }
     }
@@ -189,13 +191,37 @@ function getMimeType(path) {
 // Обратка запросов   api/*
 async function processApi(request, response) {
     var res = {};
-
+    // принять данные формы
+    // ! отключить (если есть) наш обработчик событий data/end
+    const formParser = formidable.IncomingForm();
+    formParser.parse(request, (err, fields, files) => {
+        if (err) {
+            console.error(err);
+            send500();
+            return;
+        }
+        console.log(err, fields, files);
+    });
+    // return;
     res.status = "Works";
     // упражнение: включить в ответ все принятые параметры запроса
     res.params = request.params;
 
     response.setHeader('Content-Type', 'application/json');
     response.end(JSON.stringify(res));
+}
+
+async function send418() {
+    // TODO: создать страницу "Опасный запрос"
+    response.statusCode = 418;
+    response.setHeader('Content-Type', 'text/plain');
+    response.end("I'm a teapot");
+}
+
+async function send500() {
+    response.statusCode = 500;
+    response.setHeader('Content-Type', 'text/plain');
+    response.end("Error in server");
 }
 
 /* 
