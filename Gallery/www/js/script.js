@@ -35,16 +35,36 @@ document.addEventListener("submit",(e)=>{
     .then(res => res.json())
     .then(res => {
         console.log(res);
-        let imgElement = document.createElement("img");
-        imgElement.src = res.savedPictureUrl; // res.status;
 
         let galleryElement = document.querySelector("#gallery");
-        galleryElement.append(imgElement);
 
-        let form = document.querySelector(".add-image-form");
-        form.reset();
-        //alert("success");
-    });
+        let imgElement = document.createElement("img");
+        imgElement.src = res.savedPictureUrl; 
+        imgElement.onload = function() {
+            if (this.width + this.height == 0) {
+                   this.onerror();
+                   return;
+            }
+            let descriptionElem = document.createElement("p");
+            descriptionElem.innerText = "Description: " + descr.value;
+            galleryElement.append(descriptionElem);
+
+            if (place) {
+                let placeElem = document.createElement("p");
+                placeElem.innerText = "Place: " + place.value;
+                galleryElement.append(placeElem);
+            }
+
+            let form = document.querySelector(".add-image-form");
+            form.reset();
+       }
+       imgElement.onerror = function() {
+            alert("Image upload eror!"); 
+       }
+
+
+       galleryElement.append(imgElement);
+    })
 });
 
 /* 
