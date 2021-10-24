@@ -59,7 +59,7 @@ document.addEventListener("submit",(e)=>{
             form.reset();
        }
        imgElement.onerror = function() {
-            alert("Image upload eror!"); 
+            alert("Image display error!"); 
        }
 
 

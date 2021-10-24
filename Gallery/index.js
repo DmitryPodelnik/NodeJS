@@ -204,7 +204,7 @@ async function processApi(request, response) {
             if (savedName !== "uploadError") {     
                res.savedPictureUrl = "/pictures/" + savedName;  
             } else {
-                send500(response)
+                alert("Image uploading error!");
                 return;
             }
             res.status = "Works"; 
