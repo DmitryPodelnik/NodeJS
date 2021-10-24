@@ -45,6 +45,7 @@ document.addEventListener("submit",(e)=>{
                    this.onerror();
                    return;
             }
+
             let descriptionElem = document.createElement("p");
             descriptionElem.innerText = "Description: " + descr.value;
             galleryElement.append(descriptionElem);
@@ -61,8 +62,7 @@ document.addEventListener("submit",(e)=>{
        imgElement.onerror = function() {
             alert("Image display error!"); 
        }
-
-
+       
        galleryElement.append(imgElement);
     })
 });
