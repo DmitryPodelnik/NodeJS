@@ -41,8 +41,8 @@ document.addEventListener("submit",(e)=>{
         let galleryElement = document.querySelector("#gallery");
         galleryElement.append(imgElement);
 
-        // let form = document.querySelector(".add-image-form");
-        // form.reset();
+        let form = document.querySelector(".add-image-form");
+        form.reset();
         //alert("success");
     });
 });

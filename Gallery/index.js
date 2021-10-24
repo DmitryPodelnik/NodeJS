@@ -197,15 +197,11 @@ async function processApi(request, response) {
             send500(respone);
             return;
         }
-        // console.log(fields, files);
-        // console.log(files["picture"]);
         let validateRes = validatePictureForm(fields, files);
         if (validateRes === true) {
             // OK
             const savedName = moveUploadedFile(files.picture)
             if (savedName !== "uploadError") {     
-               //res.status = "Works "; 
-               //res.status = '/pictures/' + savedName;
                res.savedPictureUrl = "/pictures/" + savedName;  
             } else {
                 send500(response)
