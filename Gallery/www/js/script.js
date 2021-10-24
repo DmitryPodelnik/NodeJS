@@ -39,7 +39,7 @@ document.addEventListener("submit",(e)=>{
         let galleryElement = document.querySelector("#gallery");
 
         let imgElement = document.createElement("img");
-        imgElement.src = res.savedPictureUrl; 
+        imgElement.src = res.params.savedPictureUrl; 
         imgElement.onload = function() {
             if (this.width + this.height == 0) {
                    this.onerror();
@@ -62,7 +62,7 @@ document.addEventListener("submit",(e)=>{
        imgElement.onerror = function() {
             alert("Image display error!"); 
        }
-       
+
        galleryElement.append(imgElement);
     })
 });

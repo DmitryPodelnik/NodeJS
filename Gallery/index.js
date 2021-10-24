@@ -202,7 +202,7 @@ async function processApi(request, response) {
             // OK
             const savedName = moveUploadedFile(files.picture)
             if (savedName !== "uploadError") {     
-               res.savedPictureUrl = "/pictures/" + savedName;  
+               res.params.savedPictureUrl = "/pictures/" + savedName;  
             } else {
                 alert("Image uploading error!");
                 return;
