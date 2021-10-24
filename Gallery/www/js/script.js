@@ -31,7 +31,20 @@ document.addEventListener("submit",(e)=>{
     fetch("/api/picture?x=10&" + new URLSearchParams(formData).toString(), {
         method: "POST",
         body: formData  // new URLSearchParams(formData).toString()
-    }).then(r=>r.text()).then(console.log);
+    })
+    .then(res => res.json())
+    .then(res => {
+        console.log(res);
+        let imgElement = document.createElement("img");
+        imgElement.src = res.savedPictureUrl; // res.status;
+
+        let galleryElement = document.querySelector("#gallery");
+        galleryElement.append(imgElement);
+
+        // let form = document.querySelector(".add-image-form");
+        // form.reset();
+        //alert("success");
+    });
 });
 
 /* 

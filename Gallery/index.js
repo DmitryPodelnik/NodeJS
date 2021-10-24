@@ -59,7 +59,7 @@ function analyze(request, response) {
     const restrictedParts = ["../", ";"];
     for (let part of restrictedParts) {
         if (requestUrl.indexOf(part) !== -1) {
-            send418();
+            send418(response);
             return;
         }
     }
@@ -84,13 +84,11 @@ function analyze(request, response) {
     }
     else if (url === 'hello') {
         response.statusCode = 200;
-        response.setHeader('Content-Type', 'text/html');
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
         response.end("<h1>Hello, world</h1>"); // ~getWriter().print in java 
     } 
     else if (url === 'js') {
         response.statusCode = 200;
-        response.setHeader('Content-Type', 'text/html');
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
         response.end("<h1>Node is cool</h1>"); // ~getWriter().print in java
     }
@@ -147,9 +145,7 @@ async function sendFile(path, response, statusCode = 200) {
         response.setHeader('Content-Type', getMimeType(path));
         readStream.pipe(response);
     } else {
-        response.statusCode = 418;
-        response.setHeader('Content-Type', 'text/plain');
-        response.end("I'm a teapot");
+        send418(response);
     }
 
     // задание: проверить наличие файла перед отправкой:
@@ -198,7 +194,7 @@ async function processApi(request, response) {
     formParser.parse(request, (err, fields, files) => {
         if (err) {
             console.error(err);
-            send500();
+            send500(respone);
             return;
         }
         // console.log(fields, files);
@@ -207,14 +203,18 @@ async function processApi(request, response) {
         if (validateRes === true) {
             // OK
             const savedName = moveUploadedFile(files.picture)
-            if (savedName !== "uploadError") {
-               console.log("success");
-               
+            if (savedName !== "uploadError") {     
+               //res.status = "Works "; 
+               //res.status = '/pictures/' + savedName;
+               res.savedPictureUrl = "/pictures/" + savedName;  
+            } else {
+                send500(response)
+                return;
             }
-            res.status ="Works" + savedName;
+            res.status = "Works"; 
         } else {
             // Validation error,validateRes - message
-            send412(validateRes);
+            send412(validateRes, response);
             return;
         }
 
@@ -269,20 +269,20 @@ function validatePictureForm(fields, files) {
     return true;
 } 
 
-async function send412(message) {
+async function send412(message, response) {
     response.statusCode = 412;
     response.setHeader('Content-Type', 'text/plain');
     response.end("Precondition Failed: " + message);
 }
 
-async function send418() {
+async function send418(response) {
     // TODO: создать страницу "Опасный запрос"
     response.statusCode = 418;
     response.setHeader('Content-Type', 'text/plain');
     response.end("I'm a teapot");
 }
 
-async function send500() {
+async function send500(response) {
     response.statusCode = 500;
     response.setHeader('Content-Type', 'text/plain');
     response.end("Error in server");
