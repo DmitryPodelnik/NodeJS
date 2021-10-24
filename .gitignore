@@ -6,6 +6,7 @@
 /for Mystat/
 
 node_modules/
+pictures/
 
 # User-specific files
 *.rsuser
