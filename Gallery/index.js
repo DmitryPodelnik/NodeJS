@@ -438,8 +438,11 @@ function viewAuth(request, response) {
 
     const salt = crypto.createHash('sha1').update(request.params.query.password).digest('hex');
     const pass = crypto.createHash('sha1').update(request.params.query.password + salt).digest('hex');
-    pool2.execute(`SELECT * FROM users EXISTS (SELECT * FROM users WHERE login = ${request.params.query.login})`)
-              // AND pass_hash = ${pass})`)
+    pool2.execute(`SELECT * FROM users 
+                   WHERE EXISTS 
+                    (SELECT * 
+                     FROM users 
+                     WHERE login = '${request.params.query.login}' AND pass_hash = '${pass}')`)
         .then(([rows, fields]) => {
             if (rows.length > 0) {
                 console.log("Authorize successful");
@@ -449,7 +452,7 @@ function viewAuth(request, response) {
         })
         .catch(err => {
             console.error(err);
-            send500(response);
+            //send500(response);
         });
 
     response.end(request.params.query.login + " " + request.params.query.password);
