@@ -510,10 +510,13 @@ function viewDb2(request, response) {
         INSERT INTO users(login, pass_salt, pass_hash, email) VALUES 
         ('admin', '40bd001563085fc35165329ea1ff5c5ecbdbbeef', '5e558e07a57a3df06e8870d690c4a22f21c76e61', 'admin@gallery.step');
 
+        // Задание: подготовить данные (стр. 399) для 'user' с паролем '321'
         INSERT INTO users(login, pass_salt, pass_hash, email) VALUES 
         ('user', '5f6955d227a320c7f1f6c7da2a6d96a851a8118f', '975b234495c549a37884458b12df0c495b7afc5c', 'user@gallery.step');
-        
-
 */
 
-// Задание: подготовить данные (стр. 399) для 'user' с паролем '321'
+/* 
+        Задание: сделать страницу авторизации -
+        поля ввода логина/пароля + кнопка "вход"
+        после нажатия : a) добро пожаловать; б) посторонним вход воспрещен
+*/
