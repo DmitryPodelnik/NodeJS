@@ -437,11 +437,12 @@ function viewAuth(request, response) {
 
     const salt = crypto.createHash('sha1').update(request.params.query.password).digest('hex');
     const pass = crypto.createHash('sha1').update(request.params.query.password + salt).digest('hex');
+    const user = [request.params.query.login, pass];
     pool2.execute(`SELECT * FROM users 
                    WHERE EXISTS 
                     (SELECT * 
                      FROM users 
-                     WHERE login = '${request.params.query.login}' AND pass_hash = '${pass}')`)
+                     WHERE login = '?' AND pass_hash = '?')`, user)
         .then(([rows, fields]) => {
             if (rows.length > 0) {
                 console.log("Authorize successful");
