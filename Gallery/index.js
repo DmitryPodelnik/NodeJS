@@ -11,7 +11,8 @@ const http       = require("http");         // HTTP
 const fs         = require("fs");           // file system
 const formidable = require("formidable");   // Form parser
 const mysql      = require("mysql");        // MySQL
-const crypto     = require("crypto");       // средство криптографии     (в т.ч. хеш)
+const crypto     = require("crypto");       // Средство криптографии     (в т.ч. хеш)
+const mysql2     = require("mysql2");       // Обновленные средства для MySQL 
 
 const connectionData = {
     host:       'localhost',      // размещение БД (возможно IP или hostname)
