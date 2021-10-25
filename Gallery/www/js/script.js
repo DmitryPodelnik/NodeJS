@@ -23,11 +23,6 @@ document.addEventListener("submit",(e)=>{
     }
     formData.append("picture", picture.files[0]);
 
-
-    // fetch("/api/picture?" + new URLSearchParams(formData).toString(), {
-    //     method: "GET"
-    // }).then(r=>r.text()).then(console.log);
-
     fetch("/api/picture?x=10&" + new URLSearchParams(formData).toString(), {
         method: "POST",
         body: formData  // new URLSearchParams(formData).toString()

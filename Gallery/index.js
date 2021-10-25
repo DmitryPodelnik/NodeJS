@@ -10,6 +10,17 @@ const UPLOAD_PATH  = WWW_ROOT + "/pictures/";
 const http       = require("http");         // HTTP
 const fs         = require("fs");           // file system
 const formidable = require("formidable");   // Form parser
+const mysql      = require("mysql");        // MySQL
+const crypto     = require("crypto");       // средство криптографии     (в т.ч. хеш)
+
+const connectionData = {
+    host:       'localhost',      // размещение БД (возможно IP или hostname)
+    port:       3306,             // порт
+    user:       'gallery_user',   // логин пользователя (to 'gallery_user'@'localhost')
+    password:   'gallery_pass',   // пароль (identified by 'gallery_pass')
+    database:   'gallery',    // schema/db (create database gallery;)
+    charset:    'utf8'         // кодировка канала подключения
+};
 
 // Серверная функция
 function serverFunction(request, response) {
@@ -76,6 +87,9 @@ function analyze(request, response) {
     if (url == '') {
         // запрос / - передаем индексный файл
         sendFile(INDEX_HTML, response);
+    }
+    else if (url == 'db') {
+        viewDb(request, response);
     }
     else if (url.indexOf("api/") == 0) {  // запрос начинается с api/
         request.params.query = params;
@@ -194,7 +208,7 @@ async function processApi(request, response) {
     formParser.parse(request, (err, fields, files) => {
         if (err) {
             console.error(err);
-            send500(respone);
+            send500(response);
             return;
         }
         let validateRes = validatePictureForm(fields, files);
@@ -204,7 +218,7 @@ async function processApi(request, response) {
             if (savedName !== "uploadError") {     
                res.params.savedPictureUrl = "/pictures/" + savedName;  
             } else {
-                alert("Image uploading error!");
+                console.log("Image uploading error!");
                 return;
             }
             res.status = "Works"; 
@@ -284,6 +298,35 @@ async function send500(response) {
     response.end("Error in server");
 }
 
+// Работа с БД
+function viewDb(request, response) {
+    // создаем подключение
+    const connection = mysql.createConnection(connectionData);
+    connection.connect(err => {
+        if (err) {
+            console.error(err);
+            send500(response);
+        } else {
+            // const salt = crypto.createHash('sha1').digest('hex');
+            // const pass = crypto.createHash('sha1').update("123" + salt).digest('hex');
+            // response.end("Connection OK" + salt + " " + pass);
+            // выполнение запросов
+            connection.query("select * from users", (err, results, fields) => {
+                if (err) {
+                    console.error(err);
+                    send500(response);
+                } else {
+                    console.log(results);
+                    console.log("------");
+                    console.log(fields);
+                    response.end("Query OK");
+                }
+            });
+        }
+        
+    });
+}
+
 
 /* 
     npm Node Pack Manager
@@ -304,4 +347,55 @@ async function send500(response) {
 
     formidable - пакет для приема данных формы (в т.ч. файлов)
     npm i formidable
+*/
+
+/* 
+    Работа с БД MySQL.
+    0. Настройка БД (в MySQL)
+        // запускаем терминал СУБД / граф.интерфейс, подаём команды
+        create database gallery;
+        grant all privileges on gallery.* to 'gallery_user'@'localhost' identified by 'gallery_pass';
+    1. Установка пакетов
+        npm i mysql
+        // или
+        npm i mysql2
+    2. Параметры и подключение
+        2.1. const connectionData = {
+            host:       'localhost',      // размещение БД (возможно IP или hostname)
+            port:       3306,             // порт
+            user:       'gallery_user',   // логин пользователя (to 'gallery_user'@'localhost')
+            password:   'gallery_pass',   // пароль (identified by 'gallery_pass')
+            database:   'gallery',    // schema/db (create database gallery;)
+            charset:    'utf8'         // кодировка канала подключения
+        };
+        2.2 const connection = mysql.createConnection(connectionData);
+        2.3.     // создаем подключение
+            const connection = mysql.createConnection(connectionData);
+            connection.connect(err => {
+                if (err) {
+                    console.error(err);
+                    send500(response);
+                } else {
+                    response.end("Connection OK");
+                }
+        
+            });
+        3.
+*/
+/* 
+        Упражнение "Авторизация"
+        1. Создание таблицы
+        CREATE TABLE users (
+            id         BIGINT       DEFAULT UUID_SHORT() PRIMARY KEY,
+            login      VARCHAR(64)  NOT NULL,
+            pass_salt  VARCHAR(40)  NOT NULL,
+            pass_hash  VARCHAR(40)  NOT NULL,
+            email      VARCHAR(64)  NOT NULL,
+            picture    VARCHAR(256)
+        ) ENGINE = InnoDB, DEFAULT CHARSET = UTF8;
+
+        2. Тестовые записи (пароль 123)
+        INSERT INTO users(login, pass_salt, pass_hash, email) VALUES 
+        ('admin', 'OKda39a3ee5e6b4b0d3255bfef95601890afd80709', '3c87fc51c024c4dbe8e123f492e1cbe7b4a21f35', 'admin@gallery.step');
+
 */
