@@ -67,3 +67,7 @@ document.addEventListener("submit",(e)=>{
     эту картинку и описание / место (если есть) + очистить форму.
     В случае неудачной - вывести (alert) и не очищать форму.
 */
+
+document.querySelector('.submitForm').addEventListener('click', (e) => {
+    
+});

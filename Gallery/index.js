@@ -66,6 +66,7 @@ function analyze(request, response) {
         }
     }
     console.log(params);
+    request.params.query = params;
 
     // проверить запрос на спецсимволы (../)
     const restrictedParts = ["../", ";"];
@@ -99,9 +100,11 @@ function analyze(request, response) {
         viewDb2(request, response);
     }
     else if (url.indexOf("api/") == 0) {  // запрос начинается с api/
-        request.params.query = params;
         processApi(request, response);
         return;
+    }
+    else if (url == 'auth') {
+        viewAuth(request, response);
     }
     else if (url === 'hello') {
         response.statusCode = 200;
@@ -326,7 +329,7 @@ function viewDb(request, response) {
                     console.log(results);
                     console.log("------");
                     console.log(fields);
-                    var table = "<table>";
+                    let table = "<table>";
                     table += `
                     <caption>Users table</caption>
                     <tr>
@@ -366,7 +369,7 @@ function viewDbPool(request, response) {
             console.log(results);
             console.log("------");
             console.log(fields);
-            var table = "<table border=1 cellspacing=0>";
+            let table = "<table border=1 cellspacing=0>";
             table += `
             <caption>Users table POOL</caption>
             <tr>
@@ -399,7 +402,7 @@ function viewDb2(request, response) {
     const pool2 = mysql2.createPool(connectionData).promise();
     pool2.query("select * from users")
         .then(([results, fields]) => {
-                    var table = "<table border=1 cellspacing=0>";
+                    let table = "<table border=1 cellspacing=0>";
                     table += `
                     <caption>Users table POOL</caption>
                     <tr>
@@ -421,6 +424,7 @@ function viewDb2(request, response) {
         
                     table += "</table>";
         
+                    response.setHeader
                     response.end(table);
         })
         .catch(err => {
@@ -428,6 +432,12 @@ function viewDb2(request, response) {
             send500(response);
         })
 }
+
+function viewAuth(request, response) {
+    response.end(request.params.query.login = " " + request.params.query.password);
+}
+
+
 
 /* 
     npm Node Pack Manager
