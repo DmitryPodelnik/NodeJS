@@ -442,7 +442,7 @@ function viewAuth(request, response) {
                    WHERE EXISTS 
                     (SELECT * 
                      FROM users 
-                     WHERE login = '?' AND pass_hash = '?')`, user)
+                     WHERE login = ? AND pass_hash = ?)`, user)
         .then(([rows, fields]) => {
             if (rows.length > 0) {
                 console.log("Authorize successful");
