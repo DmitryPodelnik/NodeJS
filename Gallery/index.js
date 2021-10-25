@@ -91,6 +91,9 @@ function analyze(request, response) {
     else if (url == 'db') {
         viewDb(request, response);
     }
+    else if (url == 'dbpool') {
+        viewDbPool(request, response);
+    }
     else if (url.indexOf("api/") == 0) {  // запрос начинается с api/
         request.params.query = params;
         processApi(request, response);
@@ -349,6 +352,43 @@ function viewDb(request, response) {
     });
 }
 
+function viewDbPool(request, response) {
+    const pool = mysql.createPool(connectionData);
+    pool.query("select * from users", (err, results, fields) => {
+        if (err) {
+            console.error(err);
+            send500(response);
+        } else {
+            console.log(results);
+            console.log("------");
+            console.log(fields);
+            var table = "<table border=1 cellspacing=0>";
+            table += `
+            <caption>Users table POOL</caption>
+            <tr>
+                <th>id</th>
+                <th>login</th>
+                <th>pass_salt</th>
+                <th>pass_hash</th>
+                <th>email</th>
+                <th>picture</th>
+            </tr>`
+            for (fields of results) {
+                table += "<tr><td>" + fields.id + "</td>"
+                table += "<td>" + fields.login + "</td>"
+                table += "<td>" + fields.pass_salt + "</td>"
+                table += "<td>" + fields.pass_hash + "</td>"
+                table += "<td>" + fields.email + "</td>"
+                table += "<td>" + fields.picture + "</td></tr>"
+            }
+
+            table += "</table>";
+
+            response.end(table);
+        }
+    });
+}
+
 
 /* 
     npm Node Pack Manager
@@ -402,7 +442,18 @@ function viewDb(request, response) {
                 }
         
             });
-        3.
+        3. Работа с крипто-хешем: модуль crypto
+        4. connection.query("SQL", (err, results, fields) => {})
+        5. Пул подключений.
+            Подключение к БД - системный ресурс (неуправляемый), требующий закрытия.
+            ? Сайт обычно работаем с одной БД и все обращения (запросы) подключаются к ней.
+              Если есть возможность повторного использования подключения - это хорошо.
+            ? Если с каждым запросом открывать новое подключение и не закрывать его, 
+              то возможны сбои СУБД.
+            Современное решение - пул подключений
+            const pool = mysql.createPool(connectionData);
+            далее, к pool обращение такое же, как к connection, например:
+                pool.query("SQL", (err, results, fields) => {})
 */
 /* 
         Упражнение "Авторизация"
@@ -422,6 +473,7 @@ function viewDb(request, response) {
 
         INSERT INTO users(login, pass_salt, pass_hash, email) VALUES 
         ('user', '5f6955d227a320c7f1f6c7da2a6d96a851a8118f', '975b234495c549a37884458b12df0c495b7afc5c', 'user@gallery.step');
+        
 
 */
 
