@@ -393,6 +393,41 @@ function viewDbPool(request, response) {
     });
 }
 
+function viewDb2(request, response) {
+    // mysql2 - расширение mysql, поэтому поддерживает те же функции
+    // + promise API
+    const pool2 = mysql2.createPool(connectionData).promise();
+    pool2.query("select * from users")
+        .then(([results, fields]) => {
+                    var table = "<table border=1 cellspacing=0>";
+                    table += `
+                    <caption>Users table POOL</caption>
+                    <tr>
+                        <th>id</th>
+                        <th>login</th>
+                        <th>pass_salt</th>
+                        <th>pass_hash</th>
+                        <th>email</th>
+                        <th>picture</th>
+                    </tr>`
+                    for (fields of results) {
+                        table += "<tr><td>" + fields.id + "</td>"
+                        table += "<td>" + fields.login + "</td>"
+                        table += "<td>" + fields.pass_salt + "</td>"
+                        table += "<td>" + fields.pass_hash + "</td>"
+                        table += "<td>" + fields.email + "</td>"
+                        table += "<td>" + fields.picture + "</td></tr>"
+                    }
+        
+                    table += "</table>";
+        
+                    response.end(table);
+        })
+        .catch(err => {
+            console.error(err);
+            send500(response);
+        })
+}
 
 /* 
     npm Node Pack Manager
