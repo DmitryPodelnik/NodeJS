@@ -307,9 +307,9 @@ function viewDb(request, response) {
             console.error(err);
             send500(response);
         } else {
-            // const salt = crypto.createHash('sha1').digest('hex');
-            // const pass = crypto.createHash('sha1').update("123" + salt).digest('hex');
-            // response.end("Connection OK" + salt + " " + pass);
+            // const salt = crypto.createHash('sha1').update("321").digest('hex');
+            // const pass = crypto.createHash('sha1').update("321" + salt).digest('hex');
+            // response.end("Connection OK " + salt + " " + pass);
             // выполнение запросов
             connection.query("select * from users", (err, results, fields) => {
                 if (err) {
@@ -319,7 +319,29 @@ function viewDb(request, response) {
                     console.log(results);
                     console.log("------");
                     console.log(fields);
-                    response.end("Query OK");
+                    var table = "<table>";
+                    table += `
+                    <caption>Users table</caption>
+                    <tr>
+                        <th>id</th>
+                        <th>login</th>
+                        <th>pass_salt</th>
+                        <th>pass_hash</th>
+                        <th>email</th>
+                        <th>picture</th>
+                    </tr>`
+                    for (fields of results) {
+                        table += "<tr><td>" + fields.id + "</td>"
+                        table += "<td>" + fields.login + "</td>"
+                        table += "<td>" + fields.pass_salt + "</td>"
+                        table += "<td>" + fields.pass_hash + "</td>"
+                        table += "<td>" + fields.email + "</td>"
+                        table += "<td>" + fields.picture + "</td></tr>"
+                    }
+
+                    table += "</table>";
+
+                    response.end(table);
                 }
             });
         }
@@ -396,6 +418,11 @@ function viewDb(request, response) {
 
         2. Тестовые записи (пароль 123)
         INSERT INTO users(login, pass_salt, pass_hash, email) VALUES 
-        ('admin', 'OKda39a3ee5e6b4b0d3255bfef95601890afd80709', '3c87fc51c024c4dbe8e123f492e1cbe7b4a21f35', 'admin@gallery.step');
+        ('admin', '40bd001563085fc35165329ea1ff5c5ecbdbbeef', '5e558e07a57a3df06e8870d690c4a22f21c76e61', 'admin@gallery.step');
+
+        INSERT INTO users(login, pass_salt, pass_hash, email) VALUES 
+        ('user', '5f6955d227a320c7f1f6c7da2a6d96a851a8118f', '975b234495c549a37884458b12df0c495b7afc5c', 'user@gallery.step');
 
 */
+
+// Задание: подготовить данные (стр. 399) для 'user' с паролем '321'
