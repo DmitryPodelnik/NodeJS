@@ -424,7 +424,6 @@ function viewDb2(request, response) {
         
                     table += "</table>";
         
-                    response.setHeader
                     response.end(table);
         })
         .catch(err => {
@@ -446,16 +445,18 @@ function viewAuth(request, response) {
         .then(([rows, fields]) => {
             if (rows.length > 0) {
                 console.log("Authorize successful");
+                response.end("Authorize successful");
             } else {
                 console.log("Incorrect login or password");
+                response.end("Incorrect login or password");
             }
         })
         .catch(err => {
             console.error(err);
-            //send500(response);
+            send500(response);
         });
 
-    response.end(request.params.query.login + " " + request.params.query.password);
+    //response.end(request.params.query.login + " " + request.params.query.password);
 }
 
 
