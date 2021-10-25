@@ -95,6 +95,9 @@ function analyze(request, response) {
     else if (url == 'dbpool') {
         viewDbPool(request, response);
     }
+    else if (url == 'db2') {
+        viewDb2(request, response);
+    }
     else if (url.indexOf("api/") == 0) {  // запрос начинается с api/
         request.params.query = params;
         processApi(request, response);
