@@ -300,6 +300,7 @@ function moveUploadedFile(file) {
     var counter = 1;
     var savedName;
     do {
+        // TODO: trim filename to 64 symbols
         savedName = `(${counter++})_${file.name}`;
     } while(fs.existsSync(UPLOAD_PATH + savedName));
 
