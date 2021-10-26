@@ -13,6 +13,7 @@ const formidable = require("formidable");   // Form parser
 const mysql      = require("mysql");        // MySQL
 const crypto     = require("crypto");       // Средство криптографии     (в т.ч. хеш)
 const mysql2     = require("mysql2");       // Обновленные средства для MySQL 
+const { send } = require("process");
 
 const connectionData = {
     host:       'localhost',      // размещение БД (возможно IP или hostname)
@@ -40,8 +41,12 @@ function serverFunction(request, response) {
     //         analyze(request, response);
     //     });
     services.dbPool = mysql2.createPool(connectionData);
+    response.on("close", () => {
+        services.dbPool.end();
+    });
     request.params = {
-        body: ""
+        body: "",
+        query: ""
     };
     analyze(request, response);
 }
@@ -89,6 +94,7 @@ function analyze(request, response) {
     }
     // нет, это не файл. Маршрутизируем
     const url = requestUrl.substring(1);
+    request.decodedUrl = url;
     if (url == '') {
         // запрос / - передаем индексный файл
         sendFile(INDEX_HTML, response);
@@ -217,6 +223,36 @@ async function processApi(request, response) {
     var res = { status: "" };
     // принять данные формы
     // ! отключить (если есть) наш обработчик событий data/end
+    const apiUrl = request.decodedUrl.substring(4); // удаляем api/ из начала запроса
+    const method = request.method.toUpperCase();
+    if (apiUrl == "picture") {
+        switch(method) {
+            case 'GET':  // возврат списка картинки
+                retPicturesList(request, response);
+                break;
+            case 'POST':  // загрузка новой картинки
+                loadPicture(request, response);
+                break;
+
+        };
+    }
+}
+
+async function retPicturesList(request, response) {
+    // Возврат JSON данных по всем картинкам
+    // response.end("Works");
+    services.dbPool.execute("SELECT * FROM pictures", (err, results) => {
+        if (err) {
+            console.log(err);
+            send500(response);
+        } else {
+            response.setHeader('Content-Type', 'application/json');
+            response.end(JSON.stringify(results));
+        }
+    });
+}
+
+async function loadPicture(response, response) {
     const formParser = formidable.IncomingForm();
     formParser.parse(request, (err, fields, files) => {
         if (err) {
@@ -256,10 +292,6 @@ async function processApi(request, response) {
             return;
         }
     });
-    // return;
-    res.status = "Works";
-    // упражнение: включить в ответ все принятые параметры запроса
-    res.params = request.params;
 }
 
 function addPicture(pic) {

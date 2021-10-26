@@ -28,7 +28,7 @@ document.addEventListener("submit",(e)=>{
     }
     formData.append("picture", picture.files[0]);
 
-    fetch("/api/picture?x=10&" + new URLSearchParams(formData).toString(), {
+    fetch("/api/picture", {
         method: "POST",
         body: formData  // new URLSearchParams(formData).toString()
     })
@@ -67,12 +67,15 @@ document.addEventListener("submit",(e)=>{
     })
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    fetch("/api/picture")
+    .then(r => r.text())
+    .then(console.log)
+});
+
+
 /* 
     В случае удачной загрузки изображения, вывести (добавить на страницу) 
     эту картинку и описание / место (если есть) + очистить форму.
     В случае неудачной - вывести (alert) и не очищать форму.
 */
-
-document.querySelector('.submitForm').addEventListener('click', (e) => {
-    
-});
