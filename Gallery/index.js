@@ -23,6 +23,8 @@ const connectionData = {
     charset:    'utf8'         // кодировка канала подключения
 };
 
+const services = { dbPool: null };
+
 // Серверная функция
 function serverFunction(request, response) {
     // определение данных из тела запроса (POST-данных)
@@ -37,6 +39,7 @@ function serverFunction(request, response) {
     //         };
     //         analyze(request, response);
     //     });
+    services.dbPool = mysql2.createPool(connectionData);
     request.params = {
         body: ""
     };
@@ -231,20 +234,66 @@ async function processApi(request, response) {
                 console.log("Image uploading error!");
                 return;
             }
-            res.status = "Works"; 
+            addPicture({
+                title:       fields.title,
+                description: fields.description,
+                place:       fields.place,
+                filename:    savedName,
+            })
+            .then(results => {
+                res.status = results.affectedRows;
+                response.setHeader('Content-Type', 'application/json');
+                response.end(JSON.stringify(res));
+            })
+            .catch(err => {
+                console.error(err);
+                send500(response);
+            });
+            //res.status = savedName;
         } else {
             // Validation error,validateRes - message
             send412(validateRes, response);
             return;
         }
-
-        response.setHeader('Content-Type', 'application/json');
-        response.end(JSON.stringify(res));
     });
     // return;
     res.status = "Works";
     // упражнение: включить в ответ все принятые параметры запроса
     res.params = request.params;
+}
+
+function addPicture(pic) {
+    // вариант 1
+    // const query = 'INSERT INTO pictures (title, description, place, filename )' +
+    // `VALUES ('${pic.title}', '${pic.description}', '${pic.place}', '${pic.filename}')`;
+    // services.dbPool.query(query, (err, results) => {
+    //     if (err) {
+    //         console.error(err);
+    //     } else {
+    //         console.log(results);
+    //     }
+    // });
+
+    // вариант 2
+    const query = 'INSERT INTO pictures (title, description, place, filename ) VALUES (?, ?, ?, ?)';
+    const params = [
+        pic.title, 
+        pic.description, 
+        pic.place, 
+        pic.filename,
+    ];
+    return new Promise((resolve, reject) => {
+        services.dbPool.query(query, params, (err, results) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(results);
+            }
+            
+        });
+    });
+
+
 }
 
 function moveUploadedFile(file) {
@@ -267,11 +316,18 @@ function moveUploadedFile(file) {
 
 function validatePictureForm(fields, files) {
     // задание: проверить поля на наличие и допустимость
-
+    
+    // title should be
+    if (typeof fields["title"] == 'undefined') {
+        return "Title required";
+    }
+    if (fields["title"].length == 0) {
+        return "Title should be non-empty";
+    }
+    // description should be 
     if (typeof fields["description"] == 'undefined') {
         return "Description required";
     }
-
     if (fields["description"].length == 0) {
         return "Description should be non-empty";
     }
@@ -553,3 +609,17 @@ function viewAuth(request, response) {
         поля ввода логина/пароля + кнопка "вход"
         после нажатия : a) добро пожаловать; б) посторонним вход воспрещен
 */
+
+/* 
+    Структура таблицы для галереи (картин галереии)
+    CREATE TABLE pictures (
+        id          BIGINT DEFAULT UUID_SHORT() PRIMARY KEY,
+        title       VARCHAR(128) NOT NULL,
+        description TEXT,
+        place VARCHAR(256),
+        filename    VARCHAR(256) NOT NULL,
+        users_id    BIGINT,                                 -- uploader ID
+        uploadDT    DATETIME DEFAULT CURRENT_TIMESTAMP,     -- upload Date/time
+        deleteDT    DATETIM,                                -- delete date/time                   
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+ */

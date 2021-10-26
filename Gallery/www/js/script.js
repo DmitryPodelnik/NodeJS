@@ -1,6 +1,10 @@
 document.addEventListener("submit",(e)=>{
     e.preventDefault();
     const form = e.target;
+    const title = form.querySelector("input[name=title]");
+    if (!title) {
+        throw "Data transfer error: input[name=title] not found";
+    }
     const descr = form.querySelector("input[name=description]");
     if (!descr) {
         throw "Data transfer error: input[name=description] not found";
@@ -16,6 +20,7 @@ document.addEventListener("submit",(e)=>{
     // TODO: data validation
 
     const formData = new FormData();
+    formData.append("title", title.value);
     formData.append("description", descr.value);
     // place optional, include if not empty
     if (place.value.length > 0) {
