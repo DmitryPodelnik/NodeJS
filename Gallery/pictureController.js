@@ -36,12 +36,18 @@ function doGet(request, response) {
         } else {
             // вариант 1
             /*
-            let res = '<div style="border: 1px solid black; display: inline-block">';
+            let res = `<div style="display: flex; flex-direction: row; 
+                                   flex-wrap: wrap; 
+                                   justify-content: space-between;" 
+                            class="card">`;
             for (let pic of results) {
-                let tempStr = `<img style="max-width: 100px" src="/pictures/{{filename}}" />
-                               <p>{{title}}</p>
-                               <p>{{description}}</p>
-                               <p>{{place}}</p>`;
+                let tempStr = `
+                                <div class="card">
+                                    <img style="max-width: 100px" src="/pictures/{{filename}}" />
+                                    <h5 class="card-title">Title: {{title}}</h5>
+                                    <p class="card-text">Description: {{description}}</p>
+                                    <p class="card-text">Place: {{place}}</p>
+                                </div>`;
 
                 tempStr = tempStr.replace("{{filename}}", pic.filename);
                 tempStr = tempStr.replace("{{title}}", pic.title);
@@ -60,10 +66,13 @@ function doGet(request, response) {
 
             // вариант 2
             let res = {
-                "template": `<img style="max-width: 100px" src="/pictures/{{filename}}" />
-                           <p>{{title}}</p>
-                           <p>{{description}}</p>
-                           <p>{{place}}</p>`,
+                "template": `
+                        <div class="card">
+                           <img style="max-width: 100px" src="/pictures/{{filename}}" />
+                           <h5 class="card-title">Title: {{title}}</h5>
+                           <p class="card-text">Description: {{description}}</p>
+                           <p class="card-text">Place: {{place}}</p>
+                        </div>`,
                 "results": results,
             };
             response.setHeader('Content-Type', 'application/json');
