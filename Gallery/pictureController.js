@@ -32,7 +32,7 @@ function doGet(request, response) {
     request.services.dbPool.execute("SELECT * FROM pictures", (err, results) => {
         if (err) {
             console.log(err);
-            send500(response);
+            response.errorHandlers.send500(response);
         } else {
             response.setHeader('Content-Type', 'application/json');
             response.end(JSON.stringify(results));
@@ -65,7 +65,7 @@ function doPost(request, response) {
                 filename:    savedName,
             }, request.services)
             .then(results => {
-                res.status = results.affectedRows;
+                res = { status: results.affectedRows } ;
                 response.setHeader('Content-Type', 'application/json');
                 response.end(JSON.stringify(res));
             })
