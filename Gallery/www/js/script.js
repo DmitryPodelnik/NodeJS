@@ -59,6 +59,7 @@ document.addEventListener("submit",(e)=>{
     .then(res => {
         console.log(res);
 
+        /*
         let galleryElement = document.querySelector("#gallery");
 
         let imgElement = document.createElement("img");
@@ -88,7 +89,9 @@ document.addEventListener("submit",(e)=>{
        }
 
        galleryElement.append(imgElement);
+       */
     });
+    
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -96,11 +99,11 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(r => r.text())
     .then(t => {
         console.log(t);
-        const j = JSON.parse(t);
+        const j = JSON.parse(t); // или .then(r => r.json())
         const cont = document.querySelector("#gallery-container");
-        const tpl = '<div style="border: 1px solid black; display: inline-block"><img style="max-width: 100px" src="/pictures/{{filename}}" /></div>'
+        // const tpl = '<div style="border: 1px solid black; display: inline-block"><img style="max-width: 100px" src="/pictures/{{filename}}" /></div>'
         for (let p of j) {
-            /*
+            
             const div = document.createElement("div");
             div.style.border = "1px solid black";
             div.style.display = "inline-block";
@@ -109,10 +112,28 @@ document.addEventListener("DOMContentLoaded", () => {
             img.src="/pictures/" + p.filename;
             img.style["max-width"] = "150px";
 
+            const title = document.createElement("p");
+            title.innerText = "Title: " + p.title;
+
+            const descr = document.createElement("p");
+            descr.innerText = "Description: " + p.description;
+
+            const place = document.createElement("p");
+
             div.appendChild(img);
+            div.appendChild(title);
+            div.appendChild(descr);
+
+            if (p.place) {
+                place.innerText = "Place: " + p.place;
+            } else {
+                place.innerText = "Place: ";
+            }
+
+            div.appendChild(place);
             cont.appendChild(div);
-            */
-           cont.innerHTML += tpl.replace("{{filename}}", p.filename);
+            
+           //cont.innerHTML += tpl.replace("{{filename}}", p.filename);
         }
     });
 });

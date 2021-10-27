@@ -53,12 +53,9 @@ function doPost(request, response) {
             // OK
             const savedName = moveUploadedFile(files.picture)
             if (savedName !== "uploadError") {     
-               // res = params.savedPictureUrl = "/pictures/" + savedName;  
-            } else {
-                console.log("Image uploading error!");
-                return;
-            }
-            addPicture({
+               // res.params.savedPictureUrl = "/pictures/" + savedName;  
+
+               addPicture({
                 title:       fields.title,
                 description: fields.description,
                 place:       fields.place,
@@ -73,7 +70,10 @@ function doPost(request, response) {
                 console.error(err);
                 response.errorHandlers.send500(response);
             });
-            //res.status = savedName;
+            } else {
+                console.log("Image uploading error!");
+                return;
+            }
         } else {
             // Validation error,validateRes - message
             response.errorHandlers.send412(validateRes, response);
