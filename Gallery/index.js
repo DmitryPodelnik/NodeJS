@@ -13,7 +13,8 @@ const formidable = require("formidable");   // Form parser
 const mysql      = require("mysql");        // MySQL
 const crypto     = require("crypto");       // Средство криптографии     (в т.ч. хеш)
 const mysql2     = require("mysql2");       // Обновленные средства для MySQL 
-const { send } = require("process");
+
+const pictureController = require("./pictureController");
 
 const connectionData = {
     host:       'localhost',      // размещение БД (возможно IP или hostname)
@@ -41,6 +42,22 @@ function serverFunction(request, response) {
     //         analyze(request, response);
     //     });
     services.dbPool = mysql2.createPool(connectionData);
+
+    request.services = services;
+    response.errorHandlers = {
+        "send412": () => {
+            response.statusCode = 412;
+            response.setHeader('Content-Type', 'text/plain');
+            response.end("Precondition Failed: " + message);  
+        },
+        "send500": () => {
+            response.statusCode = 500;
+            response.setHeader('Content-Type', 'text/plain');
+            response.end("Error in server");
+        },
+    };
+
+
     response.on("close", () => {
         services.dbPool.end();
     });
@@ -224,7 +241,12 @@ async function processApi(request, response) {
     // принять данные формы
     // ! отключить (если есть) наш обработчик событий data/end
     const apiUrl = request.decodedUrl.substring(4); // удаляем api/ из начала запроса
-    const method = request.method.toUpperCase();
+
+    if (apiUrl == "picture") {
+        pictureController.analyze(request, response);
+    }
+
+    /*
     if (apiUrl == "picture") {
         switch(method) {
             case 'GET':  // возврат списка картинки
@@ -235,21 +257,17 @@ async function processApi(request, response) {
                 break;
 
         };
-    }
-}
+    } 
 
-async function retPicturesList(request, response) {
-    // Возврат JSON данных по всем картинкам
-    // response.end("Works");
-    services.dbPool.execute("SELECT * FROM pictures", (err, results) => {
-        if (err) {
-            console.log(err);
-            send500(response);
-        } else {
-            response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify(results));
-        }
-    });
+    /*
+    const moduleName = "./" + apiUrl + "Controller.js";
+    if (fs.existsSync(moduleName)) {
+        import(moduleName)
+        .then(console.log)
+        .catch(console.log);
+    } else {
+        send418(response);
+    } */
 }
 
 async function loadPicture(response, response) {
@@ -328,7 +346,7 @@ function addPicture(pic) {
 
 }
 
-function moveUploadedFile(file) {
+function moveUploadedFile(file) { 
     var counter = 1;
     var savedName;
     do {
@@ -656,3 +674,36 @@ function viewAuth(request, response) {
         deleteDT    DATETIM,                                -- delete date/time                   
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
  */
+
+/* 
+    Модули: подключение кода из другого файла.
+        В языках-интерпретаторах текст является исполнимым, поэтому
+        есть термин "передать управление в файл" или "выполнить файл" (например, в PHP).
+        file
+        cmd
+        cmd
+        include(file2)  --> file2
+                                cmd
+                                cmd
+                                cmd
+        cmd                     <--
+        cmd
+    В JS файл обычно считается самостоятельной единицей - модулем.
+    Модуль локализует область видимости - все, что объявлено в файле, 
+    остается видимым только в этом файле. Аналогом модификатора public
+    в модулях является свойство exports (module.exports), через которое
+    объекты становятся доступными в точке подключения модуля.
+        Подключение модуля (импорт) может быть статическим и динамическим.
+    Статический импорт - изначально сканирует директории на наличие 
+    файла-модуля и не запустит программу, если файл не найден. Имя модуля
+    должно быть константой (иногда даже не допускаются ё-кавычки).
+        Динамический имопрт - считается экспериментальным (выдает предупреждения),
+    но позволяет определить имя модуля "на лету" и добавить функциональность
+    в зависимости от необходимости.
+
+    Пример - контроллеры (userCtr, pictureCtr)
+    a) статика - подключаем оба модуля, по тексту запроса определяем какой из них
+       вызвать.
+    б) динамика - по тексту запроса определяем имя файла контроллера, пробуем
+       подключить модуль.
+*/
