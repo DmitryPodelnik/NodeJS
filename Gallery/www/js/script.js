@@ -28,6 +28,29 @@ document.addEventListener("submit",(e)=>{
     }
     formData.append("picture", picture.files[0]);
 
+
+    // Exercise: 
+    // Обеспечить передачу параметров в формате JSON
+    // (данные формы преобр. в JSON и передаются запросом PUT)
+/*
+    const formDataJson = new FormData();
+    formDataJson.append("title", JSON.stringify(title.value));
+    formDataJson.append("description", JSON.stringify(descr.value));
+    // place optional, include if not empty
+    if (place.value.length > 0) {
+        formDataJson.append("place", JSON.stringify(place.value));
+    }
+    formDataJson.append("picture", JSON.stringify(picture.files[0]));
+
+    fetch("/api/picture", {
+        method: "PUT",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(console.log);
+*/
+
+
     fetch("/api/picture", {
         method: "POST",
         body: formData  // new URLSearchParams(formData).toString()
@@ -59,12 +82,13 @@ document.addEventListener("submit",(e)=>{
             let form = document.querySelector(".add-image-form");
             form.reset();
        }
+
        imgElement.onerror = function() {
             alert("Image display error!"); 
        }
 
        galleryElement.append(imgElement);
-    })
+    });
 });
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -19,11 +19,11 @@ module.exports = {
             case 'POST':  // загрузка новой картинки
                 doPost(request, response);
                 break;
+            case 'PUT': //
+                doPut(request, response);
+                break;
 
         };
-        
-        //response.end("pictureController works");
-        //console.log(request.services.dbPool);
     },
     
 };
@@ -82,6 +82,21 @@ function doPost(request, response) {
     });
 };
 
+function doPut(request, response) {
+    // Возврат JSON данных 
+    const formParser = formidable.IncomingForm();
+    formParser.parse(request, (err, fields, files) => {
+        if (err) {
+            console.error(err);
+            response.errorHandlers.send500(response);
+            return;
+        }
+        
+        response.setHeader('Content-Type', 'application/json');
+        response.end(JSON.stringify(fields));
+    });
+};
+
 function addPicture(pic, services) {
     const query = 'INSERT INTO pictures (title, description, place, filename ) VALUES (?, ?, ?, ?)';
     const params = [
@@ -97,7 +112,6 @@ function addPicture(pic, services) {
             } else {
                 resolve(results);
             }
-            
         });
     });
 
