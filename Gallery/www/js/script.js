@@ -100,8 +100,31 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(t => {
         console.log(t);
         const j = JSON.parse(t); // или .then(r => r.json())
+
+        // вариант 1
+        // const cont = document.querySelector("#gallery-container");
+        // cont.innerHTML = t;
+
+        // вариант 2
         const cont = document.querySelector("#gallery-container");
-        // const tpl = '<div style="border: 1px solid black; display: inline-block"><img style="max-width: 100px" src="/pictures/{{filename}}" /></div>'
+        let res = '<div style="border: 1px solid black; display: inline-block">';
+        for (let pic of j.results) {
+            let tempStr = j.template;
+            tempStr = tempStr.replace("{{filename}}", pic.filename);
+            tempStr = tempStr.replace("{{title}}", pic.title);
+            tempStr = tempStr.replace("{{description}}", pic.description);
+            if (pic.place) {
+                tempStr = tempStr.replace("{{place}}", pic.place);
+            } else {
+                tempStr = tempStr.replace("{{place}}", "Place: ");
+            }
+            res += tempStr;
+        }
+        res += '</div>';
+        cont.innerHTML = res;
+
+        // вариант 3
+        /*
         for (let p of j) {
             
             const div = document.createElement("div");
@@ -133,8 +156,9 @@ document.addEventListener("DOMContentLoaded", () => {
             div.appendChild(place);
             cont.appendChild(div);
             
-           //cont.innerHTML += tpl.replace("{{filename}}", p.filename);
+            cont.innerHTML += tpl.replace("{{filename}}", p.filename);
         }
+        */
     });
 });
 

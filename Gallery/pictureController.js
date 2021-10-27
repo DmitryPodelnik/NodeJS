@@ -34,8 +34,43 @@ function doGet(request, response) {
             console.log(err);
             response.errorHandlers.send500(response);
         } else {
+            // вариант 1
+            /*
+            let res = '<div style="border: 1px solid black; display: inline-block">';
+            for (let pic of results) {
+                let tempStr = `<img style="max-width: 100px" src="/pictures/{{filename}}" />
+                               <p>{{title}}</p>
+                               <p>{{description}}</p>
+                               <p>{{place}}</p>`;
+
+                tempStr = tempStr.replace("{{filename}}", pic.filename);
+                tempStr = tempStr.replace("{{title}}", pic.title);
+                tempStr = tempStr.replace("{{description}}", pic.description);
+                if (pic.place) {
+                    tempStr = tempStr.replace("{{place}}", pic.place);
+                } else {
+                    tempStr = tempStr.replace("{{place}}", "Place: ");
+                }
+                res += tempStr;
+            }
+            res += '</div>';
+
+            response.end(res);
+            */
+
+            // вариант 2
+            let res = {
+                "template": `<img style="max-width: 100px" src="/pictures/{{filename}}" />
+                           <p>{{title}}</p>
+                           <p>{{description}}</p>
+                           <p>{{place}}</p>`,
+                "results": results,
+            };
             response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify(results));
+            response.end(JSON.stringify(res));
+
+            //response.setHeader('Content-Type', 'application/json');
+            //response.end(JSON.stringify(results));
         }
     });
 };
