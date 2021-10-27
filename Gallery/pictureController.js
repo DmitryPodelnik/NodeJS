@@ -39,14 +39,14 @@ function doGet(request, response) {
             let res = `<div style="display: flex; flex-direction: row; 
                                    flex-wrap: wrap; 
                                    justify-content: space-between;" 
-                            class="card">`;
+                            >`;
             for (let pic of results) {
                 let tempStr = `
-                                <div class="card">
+                                <div>
                                     <img style="max-width: 100px" src="/pictures/{{filename}}" />
-                                    <h5 class="card-title">Title: {{title}}</h5>
-                                    <p class="card-text">Description: {{description}}</p>
-                                    <p class="card-text">Place: {{place}}</p>
+                                    <h5>Title: {{title}}</h5>
+                                    <p>Description: {{description}}</p>
+                                    <p>Place: {{place}}</p>
                                 </div>`;
 
                 tempStr = tempStr.replace("{{filename}}", pic.filename);
@@ -67,11 +67,11 @@ function doGet(request, response) {
             // вариант 2
             let res = {
                 "template": `
-                        <div class="card">
+                        <div style="background-color: moccasin">
                            <img style="max-width: 100px" src="/pictures/{{filename}}" />
-                           <h5 class="card-title">Title: {{title}}</h5>
-                           <p class="card-text">Description: {{description}}</p>
-                           <p class="card-text">Place: {{place}}</p>
+                           <h5>Title: {{title}}</h5>
+                           <p>Description: {{description}}</p>
+                           <p>Place: {{place}}</p>
                         </div>`,
                 "results": results,
             };

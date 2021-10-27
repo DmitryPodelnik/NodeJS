@@ -109,8 +109,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const cont = document.querySelector("#gallery-container");
         let res = `<div style="display: flex; flex-direction: row; 
                                flex-wrap: wrap; 
-                               justify-content: space-between;" 
-                        class="card">`;
+                               justify-content: space-between;
+                               background-color: moccasin;" 
+                        >`;
         for (let pic of j.results) {
             let tempStr = j.template;
             tempStr = tempStr.replace("{{filename}}", pic.filename);
