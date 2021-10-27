@@ -15,6 +15,7 @@ const crypto     = require("crypto");       // Средство криптогр
 const mysql2     = require("mysql2");       // Обновленные средства для MySQL 
 
 const pictureController = require("./pictureController");
+const userController = require("./userController");
 
 const connectionData = {
     host:       'localhost',      // размещение БД (возможно IP или hostname)
@@ -244,6 +245,9 @@ async function processApi(request, response) {
 
     if (apiUrl == "picture") {
         pictureController.analyze(request, response);
+    }
+    else if (apiUrl == "user") {
+        userController.analyze(request, response);
     }
 
     /*
