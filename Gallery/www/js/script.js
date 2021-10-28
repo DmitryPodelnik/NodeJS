@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (pic.place) {
                 tempStr = tempStr.replace("{{place}}", pic.place);
             } else {
-                tempStr = tempStr.replace("{{place}}", "Place: ");
+                tempStr = tempStr.replace("{{place}}", " ");
             }
             res += tempStr;
         }
@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
         */
 
         // вариант 4
-
+        /*
         fetch("/templates/picture.tpl")
         .then(r => r.text())
         .then(tpl => {
@@ -179,6 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             cont.innerHTML = html;
         })
+        */
     });
 });
 
