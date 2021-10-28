@@ -146,8 +146,21 @@ function doPut(request, response) {
 };
 
 function doDelete(request, response) {     
-    response.setHeader('Content-Type', 'application/json');
-    response.end(JSON.stringify({"results":"OK"}));
+    extractBody(response)
+    .then(body => {
+        response.setHeader('Content-Type', 'application/json');
+        response.end(JSON.stringify({"results": body.id}));
+    })
+
+    requestBody = [];  // массив chunk-ов
+    request.on("data", chunk => requestBody.push(chunk))
+           .on("end", () => {  // конец получения пакета (запроса)
+                const body = JSON.parse(
+                    Buffer.concat(requestBody).toString()
+                );
+                response.setHeader('Content-Type', 'application/json');
+                response.end(JSON.stringify({"results" : body.id}));
+        });
 };
 
 function addPicture(pic, services) {
@@ -219,4 +232,21 @@ function moveUploadedFile(file) {
         }
     });
     return savedName;
+}
+
+function extractBody(request) {
+    return new Promise((resolve, reject) => {
+        requestBody = [];  // массив chunk-ов
+        request.on("data", chunk => requestBody.push(chunk))
+               .on("end", () => {  // конец получения пакета (запроса)
+                try { 
+                    resolve(JSON.parse(
+                        Buffer.concat(requestBody).toString()
+                        ));
+                }
+                catch {
+                    reject(ex);
+                }
+            });
+    });
 }
