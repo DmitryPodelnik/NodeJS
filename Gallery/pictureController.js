@@ -148,6 +148,10 @@ function doPut(request, response) {
 function doDelete(request, response) {     
     extractBody(response)
     .then(body => {
+        // validation: id must exist
+        if (!body.id || isNaN(body.id)) {
+            response.errorHandlers.send500(response);
+        }
         response.setHeader('Content-Type', 'application/json');
         response.end(JSON.stringify({"results": body.id}));
     })
