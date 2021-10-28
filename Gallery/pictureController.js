@@ -22,6 +22,9 @@ module.exports = {
             case 'PUT': //
                 doPut(request, response);
                 break;
+            case 'DELETE': //
+                doDelete(request, response);
+                break;
 
         };
     },
@@ -29,11 +32,12 @@ module.exports = {
 };
 function doGet(request, response) {
     // Возврат JSON данных по всем картинкам
-    request.services.dbPool.execute("SELECT * FROM pictures", (err, results) => {
+    request.services.dbPool.execute("SELECT p.*, cast(p.id AS CHAR) id_str FROM pictures", (err, results) => {
         if (err) {
             console.log(err);
             response.errorHandlers.send500(response);
         } else {
+            // console.log(results);
             // вариант 1
             /*
             let res = `<div style="display: flex; flex-direction: row; 
@@ -139,6 +143,11 @@ function doPut(request, response) {
         response.setHeader('Content-Type', 'application/json');
         response.end(JSON.stringify(fields));
     });
+};
+
+function doDelete(request, response) {     
+    response.setHeader('Content-Type', 'application/json');
+    response.end(JSON.stringify({"results":"OK"}));
 };
 
 function addPicture(pic, services) {

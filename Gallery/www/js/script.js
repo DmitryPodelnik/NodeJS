@@ -171,21 +171,36 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(tpl => {
             let html = "";
             for (let p of j) {
-                html += tpl.replace("{{id}}", p.id)
+                html += tpl.replace("{{id}}", p.id_str)
                            .replace("{{title}}", p.title)
                            .replace("{{description}}", p.description)
                            .replace("{{place}}", p.place)
                            .replace("{{filename}}", p.filename);
             }
             cont.innerHTML = html;
+            addToolButtonListeners();
         })
         */
     });
 });
 
+async function addToolButtonListeners() {
+    for (let b of document.querySelectorAll('.tb-delete')) {
+        b.addEventListener('click', tbDelClick);
+    }
+}
 
-/* 
-    В случае удачной загрузки изображения, вывести (добавить на страницу) 
-    эту картинку и описание / место (если есть) + очистить форму.
-    В случае неудачной - вывести (alert) и не очищать форму.
-*/
+function tbDelClick(e) {
+    const div = e.target.closest('div');
+    const picId = div.getAttribute('picId');
+    console.log(picId);
+    fetch("/api/picture", {
+        method: "DELETE",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: `{"id": "${picId}"}`
+    })
+    .then(r => r.json())
+    .then(console.log);
+}

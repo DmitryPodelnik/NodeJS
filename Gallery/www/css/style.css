@@ -35,3 +35,30 @@ body {
     float: left;
     max-width: 150px;
 }
+.tool-buttons {
+    display: block;
+    clear: both;
+    margin: auto;
+}
+.tool-buttons span {
+    background: url(../images/btns.jpg);
+    background-size: 300%;
+    cursor: pointer;
+    display: inline-block;
+    height: 30px;
+    margin: 3px;
+    opacity: .5;
+    width: 30px;
+}
+.tool-buttons span:hover {
+    opacity: 1;
+}
+.tb-delete {
+    background-position: -50% 0;
+}
+.tb-edit {
+    background-position: -50% 50%;
+}
+.tb-download {
+    background-position: 0 0;
+}
