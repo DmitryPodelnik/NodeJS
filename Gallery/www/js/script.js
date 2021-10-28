@@ -163,6 +163,22 @@ document.addEventListener("DOMContentLoaded", () => {
             cont.innerHTML += tpl.replace("{{filename}}", p.filename);
         }
         */
+
+        // вариант 4
+
+        fetch("/templates/picture.tpl")
+        .then(r => r.text())
+        .then(tpl => {
+            let html = "";
+            for (let p of j) {
+                html += tpl.replace("{{id}}", p.id)
+                           .replace("{{title}}", p.title)
+                           .replace("{{description}}", p.description)
+                           .replace("{{place}}", p.place)
+                           .replace("{{filename}}", p.filename);
+            }
+            cont.innerHTML = html;
+        })
     });
 });
 

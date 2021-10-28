@@ -28,6 +28,12 @@ const connectionData = {
 
 const services = { dbPool: null };
 
+http.ServerResponse.prototype.send418 = async function() {
+    this.statusCode = 418;
+    this.setHeader('Content-Type', 'text/plain');
+    this.end('teapot');
+};
+
 // Серверная функция
 function serverFunction(request, response) {
     // определение данных из тела запроса (POST-данных)
@@ -243,12 +249,12 @@ async function processApi(request, response) {
     // ! отключить (если есть) наш обработчик событий data/end
     const apiUrl = request.decodedUrl.substring(4); // удаляем api/ из начала запроса
 
-    if (apiUrl == "picture") {
-        pictureController.analyze(request, response);
-    }
-    else if (apiUrl == "user") {
-        userController.analyze(request, response);
-    }
+    // if (apiUrl == "picture") {
+    //     pictureController.analyze(request, response);
+    // }
+    // else if (apiUrl == "user") {
+    //     userController.analyze(request, response);
+    // }
 
     /*
     if (apiUrl == "picture") {
@@ -264,16 +270,18 @@ async function processApi(request, response) {
     } 
     */
 
-    /*
+    
     const moduleName = "./" + apiUrl + "Controller.js";
     if (fs.existsSync(moduleName)) {
         import(moduleName)
-        .then(console.log)
+        .then(({default: api}) => {
+            api.analyze(request, response);
+        })
         .catch(console.log);
     } else {
         send418(response);
     } 
-    */
+    
 }
 
 async function loadPicture(response, response) {
@@ -725,11 +733,22 @@ function viewAuth(request, response) {
                   
                   Статика                                                Динамика
     + один раз подключается, потом используется             подключается каждый раз при выполнении кода
-
+                                                            допускает горячее подключение и замену
 
     - требует переписывания кода при добавлении модуля      не требует
 
 
     ?                        подключить динамически, но один раз при старте
                         + не нужно переписывать код        - требуется перезапуск
+*/
+/*
+    Позднее свяывание и this
+    Позднее связывание - значение переменной определяется во время выполнения операции.
+    for (i) { new Button(click -> log(i)) }
+    ожидается - 10 кнопок, каждая выводит свой номер
+    реальность - все кнопки выводят 11 (значение i после цикла)
+                 this - объект, в котором <s>находится</s> вызывается click
+                        - Subject - уведомитель механизма событий - объекты
+                          самой системы браузера, выше чем BOM (window)
+                          this = undefined
 */
