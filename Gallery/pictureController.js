@@ -31,6 +31,13 @@ module.exports = {
     
 };
 function doGet(request, response) {
+    console.log(request.params);
+    var picQuery = "SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p";
+    if (typeof request.params.query.deleted == 'undefined') {
+        picQuery += "WHERE p.deleted_DT IS NULL";
+    } else {
+        picQuery += "WHERE p.deleted_DT IS NOT NULL";
+    }
     // Возврат JSON данных по всем картинкам
     // select p.*, cast(p.id AS CHAR) id_str from pictures p
      request.services.dbPool.execute("SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p WHERE p.delete_DT IS NULL", (err, results) => {

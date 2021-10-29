@@ -141,6 +141,9 @@ function analyze(request, response) {
     else if (url == 'auth') {
         viewAuth(request, response);
     }
+    else if (url == 'junk') {
+        viewJunk(request, response);
+    }
     else if (url === 'hello') {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -583,7 +586,9 @@ function viewAuth(request, response) {
     //response.end(request.params.query.login + " " + request.params.query.password);
 }
 
-
+function viewJunk(request, response) {
+    sendFile(WWW_ROOT + "/junk.html", response)
+}
 
 /* 
     npm Node Pack Manager
