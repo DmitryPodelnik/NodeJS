@@ -32,7 +32,7 @@ module.exports = {
 };
 function doGet(request, response) {
     console.log(request.params);
-    var picQuery = "SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p";
+    var picQuery = "SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p ";
     if (typeof request.params.query.deleted == 'undefined') {
         picQuery += "WHERE p.deleted_DT IS NULL";
     } else {
