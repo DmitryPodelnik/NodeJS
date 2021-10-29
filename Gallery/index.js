@@ -51,6 +51,8 @@ function serverFunction(request, response) {
     services.dbPool = mysql2.createPool(connectionData);
 
     request.services = services;
+    global.services = services;
+
     response.errorHandlers = {
         "send412": () => {
             response.statusCode = 412;

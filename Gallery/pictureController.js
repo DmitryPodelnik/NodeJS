@@ -32,7 +32,9 @@ module.exports = {
 };
 function doGet(request, response) {
     // Возврат JSON данных по всем картинкам
-    request.services.dbPool.execute("SELECT p.*, cast(p.id AS CHAR) id_str FROM pictures", (err, results) => {
+    // select p.*, cast(p.id AS CHAR) id_str from pictures p
+     request.services.dbPool.execute("SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p WHERE p.delete_DT IS NULL", (err, results) => {
+        //request.services.dbPool.execute("SELECT * FROM pictures", (err, results) => {
         if (err) {
             console.log(err);
             response.errorHandlers.send500(response);
@@ -147,14 +149,16 @@ function doPut(request, response) {
 
 function doDelete(request, response) {     
     extractBody(response)
-    .then(body => {
-        // validation: id must exist
-        if (!body.id || isNaN(body.id)) {
-            response.errorHandlers.send500(response);
-        }
+    .then(validateId) 
+    .then(deletePicture)  //id => deletePicture(id, request)}
+    .then(results => {      
         response.setHeader('Content-Type', 'application/json');
-        response.end(JSON.stringify({"results": body.id}));
+        response.end(JSON.stringify({"results": results.affectedRows}));
     })
+    .catch(err => {
+        console.log(err);
+        response.errorHandlers.send500(response);
+    });
 
     requestBody = [];  // массив chunk-ов
     request.on("data", chunk => requestBody.push(chunk))
@@ -166,6 +170,33 @@ function doDelete(request, response) {
                 response.end(JSON.stringify({"results" : body.id}));
         });
 };
+
+function deletePicture(id, request) {
+    return new Promise((resolve, reject) => {
+        global.services.dbPool.query(
+            "UPDATE pictures SET delete_DT = CURRENT_TIMESTAMP WHERE id = ?",
+            id,
+            (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            }
+        );
+    });
+}
+
+function validateId(body) {
+    return new Promise((resolve, reject) => {
+        // validation: id must exist
+        if (!body.id || isNaN(body.id)) {
+            reject("Id validation error");
+        } else {
+            resolve(body.id);
+        }
+    });
+}
 
 function addPicture(pic, services) {
     const query = 'INSERT INTO pictures (title, description, place, filename ) VALUES (?, ?, ?, ?)';
