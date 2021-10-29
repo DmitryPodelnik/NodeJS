@@ -48,3 +48,43 @@ document.addEventListener("DOMContentLoaded", () => {
         
     });
 });
+
+async function addToolButtonListeners() {
+    for (let b of document.querySelectorAll('.tb-recover')) {
+        b.addEventListener('click', tbRecover);
+    }
+}
+
+function tbRecover(e) {
+    const div = e.target.closest('div');
+    const picId = div.getAttribute('picId');
+    console.log(picId);
+    
+    fetch("/api/picture", {
+        method: "put",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: picId,
+            delete_DT: null,
+        })
+    })
+    .then(r => r.json())
+    .then(console.log)
+    // .then(j => {
+    //     // в ответе сервера должно быть поле result, в нем (affectedRows)
+    //     // если 1 - было удаление, 0 - не было
+    //     if (typeof j.result == 'undefined') {
+    //         alert("Some error");
+    //     }
+    //     else if (j.result== 1) {
+    //         alert("Delete completed!")
+    //         // удалить div из контейнера картинок
+    //         div.remove();
+    //     }
+    //     else {
+    //         alert("Deleted fail")
+    //     }
+    // });
+}
