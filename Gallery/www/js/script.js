@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("/api/picture")
     .then(r => r.text())
     .then(t => {
-        console.log(t);
+        // console.log(t);
         const j = JSON.parse(t); // или .then(r => r.json())
         const cont = document.querySelector("#gallery-container");
 

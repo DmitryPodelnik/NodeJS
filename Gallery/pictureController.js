@@ -39,62 +39,78 @@ function doGet(request, response) {
         picQuery += "WHERE p.deleted_DT IS NOT NULL";
     }
     // Возврат JSON данных по всем картинкам
-    // select p.*, cast(p.id AS CHAR) id_str from pictures p
-    request.services.dbPool.execute("SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p WHERE p.delete_DT IS NULL", (err, results) => {
-        //request.services.dbPool.execute("SELECT * FROM pictures", (err, results) => {
-        if (err) {
-            console.log(err);
-            response.errorHandlers.send500(response);
-        } else {
-            // console.log(results);
-            // вариант 1
-            /*
-            let res = `<div style="display: flex; flex-direction: row; 
-                                   flex-wrap: wrap; 
-                                   justify-content: space-between;" 
-                            >`;
-            for (let pic of results) {
-                let tempStr = `
-                                <div>
-                                    <img style="max-width: 100px" src="/pictures/{{filename}}" />
-                                    <h5>Title: {{title}}</h5>
-                                    <p>Description: {{description}}</p>
-                                    <p>Place: {{place}}</p>
-                                </div>`;
 
-                tempStr = tempStr.replace("{{filename}}", pic.filename);
-                tempStr = tempStr.replace("{{title}}", pic.title);
-                tempStr = tempStr.replace("{{description}}", pic.description);
-                if (pic.place) {
-                    tempStr = tempStr.replace("{{place}}", pic.place);
-                } else {
-                    tempStr = tempStr.replace("{{place}}", "Place: ");
-                }
-                res += tempStr;
+    request.services.dbPool.execute(
+        picQuery,
+        (err, results) => {
+            if (err) {
+                console.log(err);
+                response.errorHandlers.send500();
+            } else {
+                // console.log(results);
+                response.setHeader('Content-Type', 'application/json');
+                response.end(JSON.stringify(results));
             }
-            res += '</div>';
+        });
 
-            response.end(res);
-            */
 
-            // вариант 2
-            let res = {
-                "template": `
-                        <div style="background-color: moccasin">
-                           <img style="max-width: 100px" src="/pictures/{{filename}}" />
-                           <h5>Title: {{title}}</h5>
-                           <p>Description: {{description}}</p>
-                           <p>Place: {{place}}</p>
-                        </div>`,
-                "results": results,
-            };
-            response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify(res));
+    // request.services.dbPool.execute("SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p WHERE p.delete_DT IS NULL", (err, results) => {
+    //    if (err) {
+    //       console.log(err);
+    //       response.errorHandlers.send500(response);
+    //    } else {
+    //        console.log(results);
+    // вариант 1
+    /*
+    let res = `<div style="display: flex; flex-direction: row; 
+                           flex-wrap: wrap; 
+                           justify-content: space-between;" 
+                    >`;
+    for (let pic of results) {
+        let tempStr = `
+                        <div>
+                            <img style="max-width: 100px" src="/pictures/{{filename}}" />
+                            <h5>Title: {{title}}</h5>
+                            <p>Description: {{description}}</p>
+                            <p>Place: {{place}}</p>
+                        </div>`;
 
-            //response.setHeader('Content-Type', 'application/json');
-            //response.end(JSON.stringify(results));
+        tempStr = tempStr.replace("{{filename}}", pic.filename);
+        tempStr = tempStr.replace("{{title}}", pic.title);
+        tempStr = tempStr.replace("{{description}}", pic.description);
+        if (pic.place) {
+            tempStr = tempStr.replace("{{place}}", pic.place);
+        } else {
+            tempStr = tempStr.replace("{{place}}", "Place: ");
         }
-    });
+        res += tempStr;
+    }
+    res += '</div>';
+
+    response.end(res);
+    */
+
+    // вариант 2
+    /*
+    let res = {
+        "template": `
+                <div style="background-color: moccasin">
+                   <img style="max-width: 100px" src="/pictures/{{filename}}" />
+                   <h5>Title: {{title}}</h5>
+                   <p>Description: {{description}}</p>
+                   <p>Place: {{place}}</p>
+                </div>`,
+        "results": results,
+    };
+    response.setHeader('Content-Type', 'application/json');
+    response.end(JSON.stringify(res));
+
+    //response.setHeader('Content-Type', 'application/json');
+    //response.end(JSON.stringify(results));
+    */
+    // }
+    //});
+
 };
 
 function doPost(request, response) {
@@ -140,35 +156,28 @@ function doPost(request, response) {
 };
 
 function doPut(request, response) {
-    // // Возврат JSON данных 
-    // const formParser = formidable.IncomingForm();
-    // formParser.parse(request, (err, fields, files) => {
-    //     if (err) {
-    //         console.error(err);
-    //         response.errorHandlers.send500(response);
-    //         return;
-    //     }
+    // Возврат JSON данных 
+    /*
+    const formParser = formidable.IncomingForm();
+    formParser.parse(request, (err, fields, files) => {
+        if (err) {
+            console.error(err);
+            response.errorHandlers.send500(response);
+            return;
+        }
 
-    //     response.setHeader('Content-Type', 'application/json');
-    //     response.end(JSON.stringify(fields));
-    // });
+        response.setHeader('Content-Type', 'application/json');
+        response.end(JSON.stringify(fields));
+    });
+    */
 
     extractBody(request)
         .then(validateOrm)
         .then(body => {
-            validateOrm(body)
-                .then(id => {
-                    response.setHeader('Content-Type', 'application/json');
-                    response.end(JSON.stringify({ "result": updatePicture(body) }));
-                })
-                .catch(err => {
-                    console.log(err);
-                    response.errorHandlers.send412(response);
-                });
-
             response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify({ "result": body }));
+            response.end(JSON.stringify({ "result": updatePicture(body) }));
         })
+        .catch(err => { console.log(err); response.errorHandlers.send412(err); });
 };
 
 function doDelete(request, response) {
@@ -184,6 +193,7 @@ function doDelete(request, response) {
             response.errorHandlers.send500(response);
         });
 
+    /*
     requestBody = [];  // массив chunk-ов
     request.on("data", chunk => requestBody.push(chunk))
         .on("end", () => {  // конец получения пакета (запроса)
@@ -193,7 +203,9 @@ function doDelete(request, response) {
             response.setHeader('Content-Type', 'application/json');
             response.end(JSON.stringify({ "results": body.id }));
         });
-};
+        */
+}
+
 
 function deletePicture(id, request) {
     return new Promise((resolve, reject) => {
@@ -212,23 +224,23 @@ function deletePicture(id, request) {
 }
 
 function updatePicture(body) {
-    let picQuery = "UPDATE pictures SET ";
-    let needComma = false;
-    let picParams = [];
+    var picQuery = "UPDATE pictures SET ";
+    var picParams = [];
+    var needComma = false;
     for (let prop in body) {
         if (prop != 'id') {
             if (needComma) {
                 picQuery += ", ";
-            } else {
+            }
+            else {
                 needComma = true;
             }
             picQuery += prop + " = ? ";
             picParams.push(body[prop]);
         }
     }
-
-    picQuery += "WHERE id = ?";
-    picParams.push(body[prop]);
+    picQuery += " WHERE id = ?";
+    picParams.push(body.id);
 
     return picQuery;
 }
@@ -279,7 +291,7 @@ function addPicture(pic, services) {
         pic.filename,
     ];
     return new Promise((resolve, reject) => {
-        services.dbPool.query(query, params, (err, results) => {
+        services.dbPool.execute(query, params, (err, results) => {
             if (err) {
                 reject(err);
             } else {
@@ -343,15 +355,16 @@ function moveUploadedFile(file) {
 
 function extractBody(request) {
     return new Promise((resolve, reject) => {
-        requestBody = [];  // массив chunk-ов
-        request.on("data", chunk => requestBody.push(chunk))
-            .on("end", () => {  // конец получения пакета (запроса)
+        let requestBody = []; // массив для чанков
+        request
+            .on("data", chunk => requestBody.push(chunk))
+            .on("end", () => {
                 try {
                     resolve(JSON.parse(
                         Buffer.concat(requestBody).toString()
                     ));
                 }
-                catch {
+                catch (ex) {
                     reject(ex);
                 }
             });
