@@ -42,7 +42,7 @@ function serverFunction(request, response) {
     global.services = services;
 
     response.errorHandlers = {
-        "send412": () => {
+        "send412": message => {
             response.statusCode = 412;
             response.setHeader('Content-Type', 'text/plain');
             response.end("Precondition Failed: " + message);

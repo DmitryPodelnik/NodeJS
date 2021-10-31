@@ -156,29 +156,19 @@ function doPost(request, response) {
 };
 
 function doPut(request, response) {
-    // Возврат JSON данных 
-    /*
-    const formParser = formidable.IncomingForm();
-    formParser.parse(request, (err, fields, files) => {
-        if (err) {
-            console.error(err);
-            response.errorHandlers.send500(response);
-            return;
-        }
-
-        response.setHeader('Content-Type', 'application/json');
-        response.end(JSON.stringify(fields));
-    });
-    */
-
     extractBody(request)
         .then(validateOrm)
-        .then(body => {
+        .then(body => updatePicture(body))
+        .then(results => {
             response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify({ "result": updatePicture(body) }));
+            response.end(JSON.stringify({ "result": results.affectedRows }));
         })
-        .catch(err => { console.log(err); response.errorHandlers.send412(err); });
-};
+        .catch(err => {
+            console.log(err);
+            response.errorHandlers.send412(err);
+        });
+
+}
 
 function doDelete(request, response) {
     extractBody(request)
@@ -213,64 +203,63 @@ function deletePicture(id, request) {
             "UPDATE pictures SET delete_DT = CURRENT_TIMESTAMP WHERE id = ?",
             id,
             (err, results) => {
-                if (err) reject(err);
-                else resolve(results);
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
             });
     });
 }
 
-function updatePicture(body) {
-    var picQuery = "UPDATE pictures SET ";
-    var picParams = [];
-    var needComma = false;
-    for (let prop in body) {
-        if (prop != 'id') {
-            if (needComma) {
-                picQuery += ", ";
+function updatePicture(body, request) {
+    return new Promise((resolve, reject) => {
+        var picQuery = "UPDATE pictures SET ";
+        var picParams = [];
+        var needComma = false;
+        for (let prop in body)
+            if (prop != 'id') {
+                if (needComma) picQuery += ", ";
+                else needComma = true;
+                picQuery += prop + " = ? ";
+                picParams.push(body[prop]);
             }
-            else {
-                needComma = true;
-            }
-            picQuery += prop + " = ? ";
-            picParams.push(body[prop]);
-        }
-    }
-    picQuery += " WHERE id = ?";
-    picParams.push(body.id);
+        picQuery += " WHERE id = ?";
+        picParams.push(body.id);
 
-    return picQuery;
+        console.log(picQuery);
+        console.log(picParams);
+
+        global.services.dbPool.query(picQuery, picParams, (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+    });
 }
 
 function validateOrm(body) {
     return new Promise((resolve, reject) => {
-        validateId(body.id)
+        validateId(body)
             .then(() => {
-                const orm = [
-                    "id",
-                    "title",
-                    "description",
-                    "place",
-                    "filename",
-                    "users_id",
-                    "upload_DT",
-                    "delete_DT",
-
-                ];
+                const orm = ["id", "title", "description", "place", "filename", "users_id", "upload_DT", "delete_DT"];
                 for (let prop in body) {
-                    if (orm.indexOf(prop) == -1) {
+                    if (orm.indexOf(prop) == -1)
                         reject("ORM error: unexpected field " + prop);
-                    }
                 }
                 resolve(body);
             })
             .catch(err => reject(err));
-    })
+    });
 }
 
 function validateId(body) {
     return new Promise((resolve, reject) => {
         // validation: id must exist
-        if (!body.id || isNaN(body.id)) {
+        if (!body.id || ! /^\d+$/.test(body.id)) {
+            //if (!body.id || isNaN(body.id)) {
             reject("Id validation error");
         } else {
             resolve(body.id);

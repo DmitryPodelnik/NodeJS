@@ -216,7 +216,7 @@ function tbDelClick(e) {
                 div.remove();
             }
             else {
-                alert("Deleted fail")
+                alert("Deleted failed")
             }
         });
 }
