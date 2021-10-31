@@ -15,9 +15,6 @@ body {
 .add-image-form label {
     display: block;
 }
-.authForm {
-    margin: 10px;
-}
 .add-image-form label span {
     display: inline-block;
     width: 100px;
@@ -38,10 +35,10 @@ body {
 .tool-buttons {
     display: block;
     clear: both;
-    margin: auto;
+    text-align: right;
 }
 .tool-buttons span {
-    background: url(../images/btns.jpg);
+    background-image: url(../images/btns.png) ;
     background-size: 300%;
     cursor: pointer;
     display: inline-block;
@@ -56,10 +53,10 @@ body {
 .tb-delete {
     background-position: -50% 0;
 }
-.tb-edit {
+.tb-download {
     background-position: -50% 50%;
 }
-.tb-download {
+.tb-edit {
     background-position: 0 0;
 }
 .tb-recover {

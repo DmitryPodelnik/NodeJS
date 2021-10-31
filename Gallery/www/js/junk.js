@@ -2,12 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch("/api/picture?deleted")
     .then(r => r.text())
     .then(t => {
-        console.log(t);
+        // console.log(t);
         const j = JSON.parse(t); // или .then(r => r.json())
+        const cont = document.querySelector("#gallery-container");
 
         // вариант 4
-        /*
-        fetch("/templates/picture.tpl")
+        
+        fetch("/templates/picture_junk.tpl")
         .then(r => r.text())
         .then(tpl => {
             let html = "";
@@ -21,10 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
             cont.innerHTML = html;
             addToolButtonListeners();
         })
-        */
+        
 
         // вариант 2
-        const cont = document.querySelector("#gallery-container");
+        /*
         let res = `<div style="display: flex; flex-direction: row; 
                                flex-wrap: wrap; 
                                justify-content: space-between;
@@ -44,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         res += '</div>';
         cont.innerHTML = res;
-
+        */
         
     });
 });
