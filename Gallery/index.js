@@ -36,18 +36,6 @@ http.ServerResponse.prototype.send418 = async function() {
 
 // Серверная функция
 function serverFunction(request, response) {
-    // определение данных из тела запроса (POST-данных)
-    /* Если запрос большой, то тело может передаваться частями (chunk-ами).
-       Для работы с телом, его необходимо сначала получить (собрать), затем обрабатывать.
-       Приход chunk-а сопровождается событием "data", конец пакета - событие "end" */
-    // requestBody = [];  // массив chunk-ов
-    // request.on("data", chunk => requestBody.push(chunk))
-    //     .on("end", () => {  // конец получения пакета (запроса)
-    //         request.params = {
-    //             body: Buffer.concat(requestBody).toString()
-    //         };
-    //         analyze(request, response);
-    //     });
     services.dbPool = mysql2.createPool(connectionData);
 
     request.services = services;
@@ -249,32 +237,7 @@ function getMimeType(path) {
 
 // Обратка запросов   api/*
 async function processApi(request, response) {
-    var res = { status: "" };
-    // принять данные формы
-    // ! отключить (если есть) наш обработчик событий data/end
     const apiUrl = request.decodedUrl.substring(4); // удаляем api/ из начала запроса
-
-    // if (apiUrl == "picture") {
-    //     pictureController.analyze(request, response);
-    // }
-    // else if (apiUrl == "user") {
-    //     userController.analyze(request, response);
-    // }
-
-    /*
-    if (apiUrl == "picture") {
-        switch(method) {
-            case 'GET':  // возврат списка картинки
-                retPicturesList(request, response);
-                break;
-            case 'POST':  // загрузка новой картинки
-                loadPicture(request, response);
-                break;
-
-        };
-    } 
-    */
-
     
     const moduleName = "./" + apiUrl + "Controller.js";
     if (fs.existsSync(moduleName)) {
@@ -287,138 +250,6 @@ async function processApi(request, response) {
         send418(response);
     } 
     
-}
-
-async function loadPicture(response, response) {
-    const formParser = formidable.IncomingForm();
-    formParser.parse(request, (err, fields, files) => {
-        if (err) {
-            console.error(err);
-            send500(response);
-            return;
-        }
-        let validateRes = validatePictureForm(fields, files);
-        if (validateRes === true) {
-            // OK
-            const savedName = moveUploadedFile(files.picture)
-            if (savedName !== "uploadError") {     
-               res.params.savedPictureUrl = "/pictures/" + savedName;  
-            } else {
-                console.log("Image uploading error!");
-                return;
-            }
-            addPicture({
-                title:       fields.title,
-                description: fields.description,
-                place:       fields.place,
-                filename:    savedName,
-            })
-            .then(results => {
-                res.status = results.affectedRows;
-                response.setHeader('Content-Type', 'application/json');
-                response.end(JSON.stringify(res));
-            })
-            .catch(err => {
-                console.error(err);
-                send500(response);
-            });
-            //res.status = savedName;
-        } else {
-            // Validation error,validateRes - message
-            send412(validateRes, response);
-            return;
-        }
-    });
-}
-
-function addPicture(pic) {
-    // вариант 1
-    // const query = 'INSERT INTO pictures (title, description, place, filename )' +
-    // `VALUES ('${pic.title}', '${pic.description}', '${pic.place}', '${pic.filename}')`;
-    // services.dbPool.query(query, (err, results) => {
-    //     if (err) {
-    //         console.error(err);
-    //     } else {
-    //         console.log(results);
-    //     }
-    // });
-
-    // вариант 2
-    const query = 'INSERT INTO pictures (title, description, place, filename ) VALUES (?, ?, ?, ?)';
-    const params = [
-        pic.title, 
-        pic.description, 
-        pic.place, 
-        pic.filename,
-    ];
-    return new Promise((resolve, reject) => {
-        services.dbPool.query(query, params, (err, results) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(results);
-            }
-            
-        });
-    });
-
-
-}
-
-function moveUploadedFile(file) { 
-    var counter = 1;
-    var savedName;
-    do {
-        // TODO: trim filename to 64 symbols
-        savedName = `(${counter++})_${file.name}`;
-    } while(fs.existsSync(UPLOAD_PATH + savedName));
-
-    // rename - если на одном и том же диске находится,
-    // или использовать copyFile
-    fs.copyFile(file.path, UPLOAD_PATH + savedName, err => {
-        if (err) {
-            console.log(err);
-            savedName = "uploadError";
-        }
-    });
-    return savedName;
-}
-
-function validatePictureForm(fields, files) {
-    // задание: проверить поля на наличие и допустимость
-    
-    // title should be
-    if (typeof fields["title"] == 'undefined') {
-        return "Title required";
-    }
-    if (fields["title"].length == 0) {
-        return "Title should be non-empty";
-    }
-    // description should be 
-    if (typeof fields["description"] == 'undefined') {
-        return "Description required";
-    }
-    if (fields["description"].length == 0) {
-        return "Description should be non-empty";
-    }
-
-    // place optional. But if present then should be non-empty
-    if (typeof files["place"] != 'undefined'
-        && fields["place"].length == 0) {
-        return "Place should be non-empty";
-    }
-
-    if (typeof files["picture"] == 'undefined') {
-       return "File required";
-    }
-
-    return true;
-} 
-
-async function send412(message, response) {
-    response.statusCode = 412;
-    response.setHeader('Content-Type', 'text/plain');
-    response.end("Precondition Failed: " + message);
 }
 
 async function send418(response) {
@@ -759,3 +590,18 @@ function viewJunk(request, response) {
                           самой системы браузера, выше чем BOM (window)
                           this = undefined
 */
+
+    // определение данных из тела запроса (POST-данных)
+    /* Если запрос большой, то тело может передаваться частями (chunk-ами).
+       Для работы с телом, его необходимо сначала получить (собрать), затем обрабатывать.
+       Приход chunk-а сопровождается событием "data", конец пакета - событие "end" */
+       /*
+    requestBody = [];  // массив chunk-ов
+    request.on("data", chunk => requestBody.push(chunk))
+        .on("end", () => {  // конец получения пакета (запроса)
+            request.params = {
+                body: Buffer.concat(requestBody).toString()
+            };
+            analyze(request, response);
+        });
+        */
