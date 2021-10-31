@@ -4,31 +4,31 @@ const WWW_ROOT = "www";
 const FILE_404 = WWW_ROOT + "/404.html";
 const INDEX_HTML = WWW_ROOT + "/index.html";
 const DEFAULT_MIME = "application/octet-stream";
-const UPLOAD_PATH  = WWW_ROOT + "/pictures/";
+const UPLOAD_PATH = WWW_ROOT + "/pictures/";
 
 // Подключение модулей
-const http       = require("http");         // HTTP
-const fs         = require("fs");           // file system
+const http = require("http");         // HTTP
+const fs = require("fs");           // file system
 const formidable = require("formidable");   // Form parser
-const mysql      = require("mysql");        // MySQL
-const crypto     = require("crypto");       // Средство криптографии     (в т.ч. хеш)
-const mysql2     = require("mysql2");       // Обновленные средства для MySQL 
+const mysql = require("mysql");        // MySQL
+const crypto = require("crypto");       // Средство криптографии     (в т.ч. хеш)
+const mysql2 = require("mysql2");       // Обновленные средства для MySQL 
 
 const pictureController = require("./pictureController");
 const userController = require("./userController");
 
 const connectionData = {
-    host:       'localhost',      // размещение БД (возможно IP или hostname)
-    port:       3306,             // порт
-    user:       'gallery_user',   // логин пользователя (to 'gallery_user'@'localhost')
-    password:   'gallery_pass',   // пароль (identified by 'gallery_pass')
-    database:   'gallery',    // schema/db (create database gallery;)
-    charset:    'utf8'         // кодировка канала подключения
+    host: 'localhost',      // размещение БД (возможно IP или hostname)
+    port: 3306,             // порт
+    user: 'gallery_user',   // логин пользователя (to 'gallery_user'@'localhost')
+    password: 'gallery_pass',   // пароль (identified by 'gallery_pass')
+    database: 'gallery',    // schema/db (create database gallery;)
+    charset: 'utf8'         // кодировка канала подключения
 };
 
 const services = { dbPool: null };
 
-http.ServerResponse.prototype.send418 = async function() {
+http.ServerResponse.prototype.send418 = async function () {
     this.statusCode = 418;
     this.setHeader('Content-Type', 'text/plain');
     this.end('teapot');
@@ -45,7 +45,7 @@ function serverFunction(request, response) {
         "send412": () => {
             response.statusCode = 412;
             response.setHeader('Content-Type', 'text/plain');
-            response.end("Precondition Failed: " + message);  
+            response.end("Precondition Failed: " + message);
         },
         "send500": () => {
             response.statusCode = 500;
@@ -136,7 +136,7 @@ function analyze(request, response) {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
         response.end("<h1>Hello, world</h1>"); // ~getWriter().print in java 
-    } 
+    }
     else if (url === 'js') {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -237,19 +237,25 @@ function getMimeType(path) {
 
 // Обратка запросов   api/*
 async function processApi(request, response) {
-    const apiUrl = request.decodedUrl.substring(4); // удаляем api/ из начала запроса
-    
+    const apiUrl = request.decodedUrl.substring(4);  // удаляем api/ из начала   
+    /*
+     if( apiUrl == "picture" ) {
+         pictureController.analyze( request, response ) ;
+     }*/
+    /*
+    if( apiUrl == "picture" ) {
+        
+    }*/
     const moduleName = "./" + apiUrl + "Controller.js";
     if (fs.existsSync(moduleName)) {
         import(moduleName)
-        .then(({default: api}) => {
-            api.analyze(request, response);
-        })
-        .catch(console.log);
+            .then(({ default: api }) => {
+                api.analyze(request, response);
+            })
+            .catch(console.log)
     } else {
         send418(response);
-    } 
-    
+    }
 }
 
 async function send418(response) {
@@ -312,7 +318,7 @@ function viewDb(request, response) {
                 }
             });
         }
-        
+
     });
 }
 
@@ -359,8 +365,8 @@ function viewDb2(request, response) {
     const pool2 = mysql2.createPool(connectionData).promise();
     pool2.query("select * from users")
         .then(([results, fields]) => {
-                    let table = "<table border=1 cellspacing=0>";
-                    table += `
+            let table = "<table border=1 cellspacing=0>";
+            table += `
                     <caption>Users table POOL</caption>
                     <tr>
                         <th>id</th>
@@ -370,18 +376,18 @@ function viewDb2(request, response) {
                         <th>email</th>
                         <th>picture</th>
                     </tr>`
-                    for (fields of results) {
-                        table += "<tr><td>" + fields.id + "</td>"
-                        table += "<td>" + fields.login + "</td>"
-                        table += "<td>" + fields.pass_salt + "</td>"
-                        table += "<td>" + fields.pass_hash + "</td>"
-                        table += "<td>" + fields.email + "</td>"
-                        table += "<td>" + fields.picture + "</td></tr>"
-                    }
-        
-                    table += "</table>";
-        
-                    response.end(table);
+            for (fields of results) {
+                table += "<tr><td>" + fields.id + "</td>"
+                table += "<td>" + fields.login + "</td>"
+                table += "<td>" + fields.pass_salt + "</td>"
+                table += "<td>" + fields.pass_hash + "</td>"
+                table += "<td>" + fields.email + "</td>"
+                table += "<td>" + fields.picture + "</td></tr>"
+            }
+
+            table += "</table>";
+
+            response.end(table);
         })
         .catch(err => {
             console.error(err);
@@ -421,17 +427,17 @@ function viewJunk(request, response) {
     sendFile(WWW_ROOT + "/junk.html", response)
 }
 
-/* 
+/*
     npm Node Pack Manager
     1. Инициализация папки - создание файла package.json
-       npm init 
+       npm init
        npm init -y
-    
+
     2. Установка пакетов
        npm install <pack-name>
        npm i <pack-name>
 
-    3. Команда(ы) запуска 
+    3. Команда(ы) запуска
        "scripts": {
             "start": "node index.js",  // npm start
             "mystart": "node index.js",  // npm run start
@@ -442,7 +448,7 @@ function viewJunk(request, response) {
     npm i formidable
 */
 
-/* 
+/*
     Работа с БД MySQL.
     0. Настройка БД (в MySQL)
         // запускаем терминал СУБД / граф.интерфейс, подаём команды
@@ -471,7 +477,7 @@ function viewJunk(request, response) {
                 } else {
                     response.end("Connection OK");
                 }
-        
+
             });
         3. Работа с крипто-хешем: модуль crypto
         4. connection.query("SQL", (err, results, fields) => {})
@@ -479,14 +485,14 @@ function viewJunk(request, response) {
             Подключение к БД - системный ресурс (неуправляемый), требующий закрытия.
             ? Сайт обычно работаем с одной БД и все обращения (запросы) подключаются к ней.
               Если есть возможность повторного использования подключения - это хорошо.
-            ? Если с каждым запросом открывать новое подключение и не закрывать его, 
+            ? Если с каждым запросом открывать новое подключение и не закрывать его,
               то возможны сбои СУБД.
             Современное решение - пул подключений
             const pool = mysql.createPool(connectionData);
             далее, к pool обращение такое же, как к connection, например:
                 pool.query("SQL", (err, results, fields) => {})
 */
-/* 
+/*
         Упражнение "Авторизация"
         1. Создание таблицы
         CREATE TABLE users (
@@ -499,21 +505,21 @@ function viewJunk(request, response) {
         ) ENGINE = InnoDB, DEFAULT CHARSET = UTF8;
 
         2. Тестовые записи (пароль 123)
-        INSERT INTO users(login, pass_salt, pass_hash, email) VALUES 
+        INSERT INTO users(login, pass_salt, pass_hash, email) VALUES
         ('admin', '40bd001563085fc35165329ea1ff5c5ecbdbbeef', '5e558e07a57a3df06e8870d690c4a22f21c76e61', 'admin@gallery.step');
 
         // Задание: подготовить данные (стр. 399) для 'user' с паролем '321'
-        INSERT INTO users(login, pass_salt, pass_hash, email) VALUES 
+        INSERT INTO users(login, pass_salt, pass_hash, email) VALUES
         ('user', '5f6955d227a320c7f1f6c7da2a6d96a851a8118f', '975b234495c549a37884458b12df0c495b7afc5c', 'user@gallery.step');
 */
 
-/* 
+/*
         Задание: сделать страницу авторизации -
         поля ввода логина/пароля + кнопка "вход"
         после нажатия : a) добро пожаловать; б) посторонним вход воспрещен
 */
 
-/* 
+/*
     Структура таблицы для галереи (картин галереии)
     CREATE TABLE pictures (
         id          BIGINT DEFAULT UUID_SHORT() PRIMARY KEY,
@@ -523,11 +529,11 @@ function viewJunk(request, response) {
         filename    VARCHAR(256) NOT NULL,
         users_id    BIGINT,                                 -- uploader ID
         uploadDT    DATETIME DEFAULT CURRENT_TIMESTAMP,     -- upload Date/time
-        deleteDT    DATETIM,                                -- delete date/time                   
+        deleteDT    DATETIM,                                -- delete date/time
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
  */
 
-/* 
+/*
     Модули: подключение кода из другого файла.
         В языках-интерпретаторах текст является исполнимым, поэтому
         есть термин "передать управление в файл" или "выполнить файл" (например, в PHP).
@@ -541,12 +547,12 @@ function viewJunk(request, response) {
         cmd                     <--
         cmd
     В JS файл обычно считается самостоятельной единицей - модулем.
-    Модуль локализует область видимости - все, что объявлено в файле, 
+    Модуль локализует область видимости - все, что объявлено в файле,
     остается видимым только в этом файле. Аналогом модификатора public
     в модулях является свойство exports (module.exports), через которое
     объекты становятся доступными в точке подключения модуля.
         Подключение модуля (импорт) может быть статическим и динамическим.
-    Статический импорт - изначально сканирует директории на наличие 
+    Статический импорт - изначально сканирует директории на наличие
     файла-модуля и не запустит программу, если файл не найден. Имя модуля
     должно быть константой (иногда даже не допускаются ё-кавычки).
         Динамический имопрт - считается экспериментальным (выдает предупреждения),
@@ -568,7 +574,7 @@ function viewJunk(request, response) {
             метод, переменная и т.п.
             PHP - classExists(name) / Object.hasOwnProperty(...)
                   exists(name)        typeof name == 'undefined'?
-                  
+
                   Статика                                                Динамика
     + один раз подключается, потом используется             подключается каждый раз при выполнении кода
                                                             допускает горячее подключение и замену
@@ -592,16 +598,16 @@ function viewJunk(request, response) {
 */
 
     // определение данных из тела запроса (POST-данных)
-    /* Если запрос большой, то тело может передаваться частями (chunk-ами).
-       Для работы с телом, его необходимо сначала получить (собрать), затем обрабатывать.
-       Приход chunk-а сопровождается событием "data", конец пакета - событие "end" */
-       /*
-    requestBody = [];  // массив chunk-ов
-    request.on("data", chunk => requestBody.push(chunk))
-        .on("end", () => {  // конец получения пакета (запроса)
-            request.params = {
-                body: Buffer.concat(requestBody).toString()
-            };
-            analyze(request, response);
-        });
-        */
+/* Если запрос большой, то тело может передаваться частями (chunk-ами).
+   Для работы с телом, его необходимо сначала получить (собрать), затем обрабатывать.
+   Приход chunk-а сопровождается событием "data", конец пакета - событие "end" */
+/*
+requestBody = [];  // массив chunk-ов
+request.on("data", chunk => requestBody.push(chunk))
+ .on("end", () => {  // конец получения пакета (запроса)
+     request.params = {
+         body: Buffer.concat(requestBody).toString()
+     };
+     analyze(request, response);
+ });
+ */

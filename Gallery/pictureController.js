@@ -181,16 +181,16 @@ function doPut(request, response) {
 };
 
 function doDelete(request, response) {
-    extractBody(response)
+    extractBody(request)
         .then(validateId)
-        .then(deletePicture)  //id => deletePicture(id, request)}
+        .then(deletePicture)  // id => deletePicture( id, request ) )
         .then(results => {
             response.setHeader('Content-Type', 'application/json');
-            response.end(JSON.stringify({ "results": results.affectedRows }));
+            response.end(JSON.stringify({ "result": results.affectedRows }));
         })
         .catch(err => {
             console.log(err);
-            response.errorHandlers.send500(response);
+            response.errorHandlers.send500();
         });
 
     /*
@@ -213,13 +213,9 @@ function deletePicture(id, request) {
             "UPDATE pictures SET delete_DT = CURRENT_TIMESTAMP WHERE id = ?",
             id,
             (err, results) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(results);
-                }
-            }
-        );
+                if (err) reject(err);
+                else resolve(results);
+            });
     });
 }
 

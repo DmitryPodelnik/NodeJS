@@ -17,7 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
                            .replace("{{title}}", p.title)
                            .replace("{{description}}", p.description)
                            .replace("{{place}}", p.place)
-                           .replace("{{filename}}", p.filename);
+                           .replace("{{filename}}", p.filename)
+                           .replace("{{delete_DT}}", p.delete_DT.substring(0, 10));
             }
             cont.innerHTML = html;
             addToolButtonListeners();
