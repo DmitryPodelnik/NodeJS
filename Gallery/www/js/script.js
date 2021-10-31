@@ -100,13 +100,14 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(t => {
         console.log(t);
         const j = JSON.parse(t); // или .then(r => r.json())
+        const cont = document.querySelector("#gallery-container");
 
         // вариант 1
         // const cont = document.querySelector("#gallery-container");
         // cont.innerHTML = t;
 
-        // вариант 2
-        const cont = document.querySelector("#gallery-container");
+        // вариант 2 !!!
+        /*
         let res = `<div style="display: flex; flex-direction: row; 
                                flex-wrap: wrap; 
                                justify-content: space-between;
@@ -126,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         res += '</div>';
         cont.innerHTML = res;
+        */
 
         // вариант 3
         /*
@@ -165,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         */
 
         // вариант 4
-        /*
+        
         fetch("/templates/picture.tpl")
         .then(r => r.text())
         .then(tpl => {
@@ -180,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cont.innerHTML = html;
             addToolButtonListeners();
         })
-        */
+        
     });
 });
 
@@ -208,7 +210,7 @@ function tbDelClick(e) {
         if (typeof j.result == 'undefined') {
             alert("Some error");
         }
-        else if (j.result== 1) {
+        else if (j.result == 1) {
             alert("Delete completed!")
             // удалить div из контейнера картинок
             div.remove();
