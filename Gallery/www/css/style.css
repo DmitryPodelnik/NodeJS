@@ -28,6 +28,9 @@ body {
     vertical-align: top;
     width: 300px;
 }
+.picture-item p {
+    display: inline-block;
+}
 .picture-item img {
     float: left;
     max-width: 150px;

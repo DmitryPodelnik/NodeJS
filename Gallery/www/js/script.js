@@ -190,9 +190,20 @@ async function addToolButtonListeners() {
     for (let b of document.querySelectorAll('.tb-delete')) {
         b.addEventListener('click', tbDelClick);
     }
+    for (let b of document.querySelectorAll('.tb-edit')) {
+        b.addEventListener('click', tbEditClick);
+    }
+    for (let b of document.querySelectorAll('.tb-download')) {
+        b.addEventListener('click', tbDownloadClick);
+    }
 }
 
 function tbDelClick(e) {
+
+    if (!confirm('Are you sure you want to delete?')) {
+        return;
+    }
+
     const div = e.target.closest('div');
     const picId = div.getAttribute('picId');
     // console.log(picId);
@@ -219,4 +230,70 @@ function tbDelClick(e) {
                 alert("Deleted failed")
             }
         });
+}
+
+function tbEditClick(e) {
+    const div = e.target.closest('div');
+    const picId = div.getAttribute('picId');
+    console.log(picId);
+
+    const place = div.querySelector('i');
+    if (!place) {
+        throw "EditClick: place(<i>) not found";
+    }
+    const description = div.querySelector('p');
+    if (!description) {
+        throw "EditClick: description(<p>) not found";
+    }
+
+    // toggle effect
+    if (typeof div.savedPlace == 'undefined') {  // first click
+        div.savedPlace = place.innerHTML;
+        div.savedDescription = description.innerHTML;
+        // editable content
+        place.setAttribute('contenteditable', 'true');
+        description.setAttribute('contenteditable', 'true');
+        description.focus();
+
+        console.log(div.savedPlace, div.savedDescription);
+    } else {  // second click
+        // no changes - no fetch
+        // one field changed - one field fetched
+
+        let data = {};
+        if (div.savedPlace != place.innerHTML) {
+            data.place = place.innerHTML;
+        }
+        if (div.savedDescription != description.innerHTML) {
+            data.description = description.innerHTML;
+        }
+
+        if (Object.keys(data).length > 0) {
+            data.id =  picId;
+            fetch("/api/picture", {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(r => r.text())
+            .then(res => {
+                console.log(res);
+            })
+        }
+
+        delete div.savedPlace;
+        delete div.savedDescription;
+        place.removeAttribute('contenteditable');
+        description.removeAttribute('contenteditable');
+    }
+
+}
+
+function tbDownloadClick(e) {
+    const div = e.target.closest('div');
+    const picId = div.getAttribute('picId');
+    console.log(picId);
+    window.location = "/download?picId=" + picId;
 }

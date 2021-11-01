@@ -213,23 +213,28 @@ function deletePicture(id, request) {
 }
 
 function updatePicture(body, request) {
-    return new Promise((resolve, reject) => {
-        var picQuery = "UPDATE pictures SET ";
-        var picParams = [];
-        var needComma = false;
-        for (let prop in body)
-            if (prop != 'id') {
-                if (needComma) picQuery += ", ";
-                else needComma = true;
-                picQuery += prop + " = ? ";
-                picParams.push(body[prop]);
+    let picQuery = "UPDATE pictures SET ";
+    let picParams = [];
+    let needComma = false;
+    for (let prop in body) {
+        if (prop != 'id') {
+            if (needComma) {
+                picQuery += ", ";
             }
-        picQuery += " WHERE id = ?";
-        picParams.push(body.id);
+            else {
+                needComma = true;
+            }
+            picQuery += prop + " = ? ";
+            picParams.push(body[prop]);
+        }
+    }
+    picQuery += " WHERE id = ?";
+    picParams.push(body.id);
 
-        console.log(picQuery);
-        console.log(picParams);
+    console.log(picQuery);
+    console.log(picParams);
 
+    return new Promise((resolve, reject) => {
         global.services.dbPool.query(picQuery, picParams, (err, results) => {
                 if (err) {
                     reject(err);

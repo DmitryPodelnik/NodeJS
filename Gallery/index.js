@@ -132,6 +132,9 @@ function analyze(request, response) {
     else if (url == 'junk') {
         viewJunk(request, response);
     }
+    else if (url == 'download') {
+        viewDownload(request, response);
+    }
     else if (url === 'hello') {
         response.statusCode = 200;
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -425,6 +428,25 @@ function viewAuth(request, response) {
 
 function viewJunk(request, response) {
     sendFile(WWW_ROOT + "/junk.html", response)
+}
+
+function viewDownload(request, response) {
+    global.services.dbPool.execute(
+      "SELECT filename FROM pictures WHERE id = ?",
+      request.params.query.picId,
+      (err, results) => {
+          if (err) {
+              console.log(err);
+              response.errorHandlers.send500();
+          } else {
+                response.setHeader('Content-Type', 'application/octet-stream');
+            // TODO: set name for file
+                fs.createReadStream(UPLOAD_PATH + results[0].filename)
+                pipe(response);
+                // response.end(results[0].filename);
+          }
+      }
+    );
 }
 
 /*
