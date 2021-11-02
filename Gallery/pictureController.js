@@ -12,6 +12,9 @@ const UPLOAD_PATH = WWW_ROOT + "/pictures/";
 module.exports = {
     analyze: function (request, response) {
         response.setHeader('Access-Control-Allow-Origin', '*');
+        // CORS
+        // без указания - проходят только OPTIONS, GET, POST
+        response.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT');
         const method = request.method.toUpperCase();
         switch (method) {
             case 'GET':  // возврат списка картинки
@@ -41,7 +44,7 @@ function doOptions(request, response) {
     response.setHeader('Allow', 'OPTIONS, GET, POST, PUT, DELETE');
     // CORS
     // без указания - проходят только OPTIONS, GET, POST
-    response.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, DELETE');
+    // response.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, DELETE');
     // без указания - разрешается только text/plain (по-умолчанию)
     response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
