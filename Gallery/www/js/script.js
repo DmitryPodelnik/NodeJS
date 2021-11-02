@@ -250,6 +250,7 @@ function tbEditClick(e) {
     if (typeof div.savedPlace == 'undefined') {  // first click
         div.savedPlace = place.innerHTML;
         div.savedDescription = description.innerHTML;
+        div.querySelector('.tb-edit').className = 'tb-save';
         // editable content
         place.setAttribute('contenteditable', 'true');
         description.setAttribute('contenteditable', 'true');
@@ -259,7 +260,6 @@ function tbEditClick(e) {
     } else {  // second click
         // no changes - no fetch
         // one field changed - one field fetched
-
         let data = {};
         if (div.savedPlace != place.innerHTML) {
             data.place = place.innerHTML;
@@ -267,6 +267,9 @@ function tbEditClick(e) {
         if (div.savedDescription != description.innerHTML) {
             data.description = description.innerHTML;
         }
+
+        let savedPlace = div.savedPlace;
+        let savedDescription = div.savedDescription;
 
         if (Object.keys(data).length > 0) {
             data.id =  picId;
@@ -284,16 +287,16 @@ function tbEditClick(e) {
             })
             .catch(err => {
                 alert("error");
-                description.innerHTML = div.savedDescription;
-                place.innerHTML = div.savedPlace;
+                description.innerHTML = savedDescription;
+                place.innerHTML = savedPlace;
             })
-            .then(res => {
-                delete div.savedPlace;
-                delete div.savedDescription;
-                place.removeAttribute('contenteditable');
-                description.removeAttribute('contenteditable');
-            });
         }
+
+        delete div.savedPlace;
+        delete div.savedDescription;
+        place.removeAttribute('contenteditable');
+        description.removeAttribute('contenteditable');
+        div.querySelector('.tb-save').className = 'tb-edit';
     }
 
 }
