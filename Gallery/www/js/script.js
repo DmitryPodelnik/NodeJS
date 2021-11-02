@@ -301,6 +301,16 @@ function tbEditClick(e) {
 
 }
 
+document.addEventListener('keydown', (e) => {
+    if (event.code == 'Escape') {
+        const div = document.querySelector('#gallery-container');
+        let saveBtns = div.querySelectorAll('.tb-save');
+        for (let prop of saveBtns) {
+            prop.className = 'tb-edit';
+        }
+    }
+  });
+
 function tbDownloadClick(e) {
     const div = e.target.closest('div');
     const picId = div.getAttribute('picId');
