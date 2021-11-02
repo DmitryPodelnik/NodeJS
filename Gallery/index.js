@@ -433,17 +433,17 @@ function viewJunk(request, response) {
 function viewDownload(request, response) {
     global.services.dbPool.execute(
       "SELECT filename FROM pictures WHERE id = ?",
-      request.params.query.picId,
+      [request.params.query.picId],
       (err, results) => {
           if (err) {
               console.log(err);
               response.errorHandlers.send500();
           } else {
                 response.setHeader('Content-Type', 'application/octet-stream');
+                response.setHeader('Content-Disposition', 'attachment; ' + `filename="${results[0].filename}"`);
             // TODO: set name for file
                 fs.createReadStream(UPLOAD_PATH + results[0].filename)
-                pipe(response);
-                // response.end(results[0].filename);
+                .pipe(response);
           }
       }
     );
