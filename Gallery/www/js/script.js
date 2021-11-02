@@ -237,11 +237,11 @@ function tbEditClick(e) {
     const picId = div.getAttribute('picId');
     console.log(picId);
 
-    const place = div.querySelector('i');
+    const place = div.querySelector('i > span');
     if (!place) {
         throw "EditClick: place(<i>) not found";
     }
-    const description = div.querySelector('p');
+    const description = div.querySelector('p > span');
     if (!description) {
         throw "EditClick: description(<p>) not found";
     }
@@ -279,14 +279,21 @@ function tbEditClick(e) {
             })
             .then(r => r.text())
             .then(res => {
+                let data = JSON.parse(res);
                 console.log(res);
             })
+            .catch(err => {
+                alert("error");
+                description.innerHTML = div.savedDescription;
+                place.innerHTML = div.savedPlace;
+            })
+            .then(res => {
+                delete div.savedPlace;
+                delete div.savedDescription;
+                place.removeAttribute('contenteditable');
+                description.removeAttribute('contenteditable');
+            });
         }
-
-        delete div.savedPlace;
-        delete div.savedDescription;
-        place.removeAttribute('contenteditable');
-        description.removeAttribute('contenteditable');
     }
 
 }
