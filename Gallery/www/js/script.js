@@ -309,7 +309,7 @@ document.addEventListener('keydown', (e) => {
             prop.className = 'tb-edit';
         }
         
-        let fields = document.querySelectorAll('p > span, i > span');
+        let fields = div.querySelectorAll('p > span, i > span');
         for (let prop of fields) {
             prop.removeAttribute('contenteditable');
         }
