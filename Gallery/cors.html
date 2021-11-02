@@ -61,13 +61,21 @@
         function putClick() {
             fetch("http://gallery.step/api/picture", {
                 method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             })
             .then(r => r.text())
             .then(t => window.out.innerHTML = t);
         }
 
         function deleteClick() {
-            fetch("http://gallery.step/api/picture")
+            fetch("http://gallery.step/api/picture", {
+                method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
             .then(r => r.text())
             .then(t => window.out.innerHTML = t);
         }

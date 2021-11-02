@@ -43,9 +43,9 @@ function doOptions(request, response) {
     // без указания - проходят только OPTIONS, GET, POST
     response.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, DELETE');
     // без указания - разрешается только text/plain (по-умолчанию)
-    response.setHeader('Access-Control-Allow-Methods', 'Content-Type');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    
+    response.end();
 }
 
 function doGet(request, response) {
