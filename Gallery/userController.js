@@ -65,7 +65,6 @@ function doGet(request, response) {
                     .createHash('sha1')
                     .update(userPassword + results[0].pass_salt)
                     .digest('hex');
-
                 if (results[0].pass_hash == pass) {
                     updateUserAuthData(userLogin);
                     response.end("Authorization successfull!");
@@ -77,19 +76,14 @@ function doGet(request, response) {
 }
 
 async function getUserByLogin(login) {
-    return new Promise((resolve, reject) => {
-        global.services.dbPool.execute(
-            'SELECT *, CAST(id AS CHAR) AS id_str FROM users WHERE login=?',
-            [login],
-            (err, results) => {
-                if (err) {
-                    reject(err)
-                }
-                else {
-                    resolve(results);
-                }
-            });
-    });
+    global.services.dbPool.execute(
+        'SELECT u.*, CAST(u.id AS CHAR) id_str FROM users u WHERE u.login = ?',
+        [login],
+        (err, results) => {
+            if (err) {
+                console.log(err);
+            }
+        });
 }
 
 async function updateUserAuthData(login) {
@@ -99,8 +93,6 @@ async function updateUserAuthData(login) {
         (err, results) => {
             if (err) {
                 console.log(err);
-            } else {
-                console.log(results);
             }
         });
 }
