@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { resolve } = require('path');
 
 
 module.exports = {
@@ -64,15 +65,15 @@ function doGet(request, response) {
                     .createHash('sha1')
                     .update(userPassword + results[0].pass_salt)
                     .digest('hex');
-                    
+
                 if (results[0].pass_hash == pass) {
-                    response.end(results[0].id_str);
+                    updateUserAuthData(userLogin);
+                    response.end("Authorization successfull!");
                     return;
                 }
             }
-            response.end("0");
+            response.end("Incorrect login or password");
         }).catch(err => { console.log(err); response.errorHandlers.send500(); });
-    // response.end(JSON.stringify(request.params.query));
 }
 
 async function getUserByLogin(login) {
@@ -82,13 +83,26 @@ async function getUserByLogin(login) {
             [login],
             (err, results) => {
                 if (err) {
-                    reject(err) 
+                    reject(err)
                 }
                 else {
                     resolve(results);
                 }
             });
     });
+}
+
+async function updateUserAuthData(login) {
+    global.services.dbPool.query(
+        'UPDATE users SET auth_DT = ? WHERE login = ?',
+        [new Date(), login],
+        (err, results) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(results);
+            }
+        });
 }
 
 function doPost(request, response) {
