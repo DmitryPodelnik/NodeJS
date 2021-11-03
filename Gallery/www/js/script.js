@@ -322,3 +322,45 @@ function tbDownloadClick(e) {
     console.log(picId);
     window.location = "/download?picId=" + picId;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    // user-block - auth
+    const userBlock = document.querySelector('#user-block');
+    if (!userBlock) {
+        throw "userBlock not found";
+    }
+    // button click 
+    const logBtn = userBlock.querySelector('input[type=button]');
+    if (!logBtn) {
+        throw "logIn button not found";
+    }
+    logBtn.addEventListener('click', () => {
+        const userLogin = userBlock.querySelector('input[type=text]');
+        if (!userLogin) {
+            throw "User login not found";
+        }
+        const userPassword = userBlock.querySelector('input[type=password]');
+        if (!userPassword) {
+            throw "User password not found";
+        }
+        // validation
+        if (userLogin.value.length == 0) {
+            alert("Login cannot be empty");
+            return;
+        }
+
+        if (userPassword.value.length == 0) {
+            alert("Password cannot be empty");
+            return;
+        }
+        fetch(`/api/user?login=${userLogin.value}&userpassword=${userPassword.value}`)
+        .then(r => r.text()) 
+        .then(authUser);
+
+        console.log(userLogin.value, userPassword.value);
+    });
+});
+
+async function authUser(txt) {
+    console.log(txt);
+}
