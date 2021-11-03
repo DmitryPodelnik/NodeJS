@@ -353,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Password cannot be empty");
             return;
         }
-        fetch(`/api/user?login=${userLogin.value}&userpassword=${userPassword.value}`)
+        fetch(`/api/user?userLogin=${userLogin.value}&userPassword=${userPassword.value}`)
         .then(r => r.text()) 
         .then(authUser);
 
@@ -363,4 +363,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function authUser(txt) {
     console.log(txt);
+    alert(txt);
 }

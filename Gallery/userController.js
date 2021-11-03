@@ -1,10 +1,5 @@
+const crypto = require('crypto');
 
-const HTTP_PORT = 80;
-const WWW_ROOT = "www";
-const FILE_404 = WWW_ROOT + "/404.html";
-const INDEX_HTML = WWW_ROOT + "/index.html";
-const DEFAULT_MIME = "application/octet-stream";
-const UPLOAD_PATH  = WWW_ROOT + "/pictures/";
 
 module.exports = {
     analyze: function (request, response) {
@@ -59,8 +54,40 @@ function doGet(request, response) {
         response.errorHandlers.send412(errorMessage);
         return;
     }
+    // end of validation
 
-    response.end(JSON.stringify(request.params.query));
+    // authorization  -get id by log/pass
+    getUserByLogin(userLogin)
+        .then(results => {
+            if (results.length > 0) {
+                const pass = crypto
+                    .createHash('sha1')
+                    .update(userpassw = results[0].pass_salt)
+                    .digest('hex');
+                if (results[0].pass_hash == pass) {
+                    response.end(results[0].id_str);
+                    return;
+                }
+            }
+            response.end("0");
+        }).catch(err => { console.log(err); response.errorHandlers.send500(); });
+    // response.end(JSON.stringify(request.params.query));
+}
+
+async function getUserByLogin(login) {
+    return new Promise((resolve, reject) => {
+        global.services.dbPool.query(
+            `SELECT p.*, CAST(p.id AS CHAR) id_str FROM users p WHERE login='${login}'`,
+            login,
+            (err, results) => {
+                if (err) {
+                    reject(err) 
+                }
+                else {
+                    resolve(results);
+                }
+            });
+    });
 }
 
 function doPost(request, response) {

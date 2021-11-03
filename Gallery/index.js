@@ -551,7 +551,7 @@ function viewDownload(request, response) {
         filename    VARCHAR(256) NOT NULL,
         users_id    BIGINT,                                 -- uploader ID
         uploadDT    DATETIME DEFAULT CURRENT_TIMESTAMP,     -- upload Date/time
-        deleteDT    DATETIM,                                -- delete date/time
+        deleteDT    DATETIME,                                -- delete date/time
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
  */
 
