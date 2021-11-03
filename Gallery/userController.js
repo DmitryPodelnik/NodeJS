@@ -62,8 +62,9 @@ function doGet(request, response) {
             if (results.length > 0) {
                 const pass = crypto
                     .createHash('sha1')
-                    .update(userpassw = results[0].pass_salt)
+                    .update(userPassword + results[0].pass_salt)
                     .digest('hex');
+                    
                 if (results[0].pass_hash == pass) {
                     response.end(results[0].id_str);
                     return;
@@ -76,9 +77,9 @@ function doGet(request, response) {
 
 async function getUserByLogin(login) {
     return new Promise((resolve, reject) => {
-        global.services.dbPool.query(
-            `SELECT p.*, CAST(p.id AS CHAR) id_str FROM users p WHERE login='${login}'`,
-            login,
+        global.services.dbPool.execute(
+            'SELECT *, CAST(id AS CHAR) AS id_str FROM users WHERE login=?',
+            [login],
             (err, results) => {
                 if (err) {
                     reject(err) 
