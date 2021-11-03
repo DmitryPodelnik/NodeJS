@@ -11,25 +11,27 @@ const UPLOAD_PATH = WWW_ROOT + "/pictures/";
 
 module.exports = {
     analyze: function (request, response) {
-        response.setHeader('Access-Control-Allow-Origin', '*');
         // CORS
         // без указания - проходят только OPTIONS, GET, POST
         response.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT');
         const method = request.method.toUpperCase();
         switch (method) {
             case 'GET':  // возврат списка картинки
+            response.setHeader('Access-Control-Allow-Origin', '*');
                 doGet(request, response);
                 break;
             case 'POST':  // загрузка новой картинки
                 doPost(request, response);
                 break;
             case 'PUT': //
+            response.setHeader('Access-Control-Allow-Origin', '*');
                 doPut(request, response);
                 break;
             case 'DELETE': //
                 doDelete(request, response);
                 break;
             case 'OPTIONS': //
+            response.setHeader('Access-Control-Allow-Origin', '*');
                 doOptions(request, response);
                 break;
 

@@ -34,7 +34,8 @@ module.exports = {
 };
 
 function doGet(request, response) {
-    response.end("GET");
+
+    response.end(JSON.stringify(request.params.query));
 }
 
 function doPost(request, response) {

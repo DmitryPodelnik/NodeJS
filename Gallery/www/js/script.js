@@ -357,7 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(r => r.text()) 
         .then(authUser);
 
-        console.log(userLogin.value, userPassword.value);
+        // console.log(userLogin.value, userPassword.value);
     });
 });
 
