@@ -34,6 +34,31 @@ module.exports = {
 };
 
 function doGet(request, response) {
+    // server-side validation 
+    let errorMessage = "";
+    let userLogin, userPassword;
+    if (typeof request.params.query.userLogin == 'undefined') {
+        errorMessage = 'userLogin required';
+    } else {
+        userLogin = request.params.query.userLogin;
+        if (userLogin.length == 0) {
+            errorMessage = 'userLogin should be not empty';
+        }
+    }
+
+    if (typeof request.params.query.userPassword == 'undefined') {
+        errorMessage = 'userPassword required';
+    } else {
+        userPassword = request.params.query.userPassword;
+        if (userPassword.length == 0) {
+            errorMessage = 'userPassword should be not empty';
+        }
+    }
+
+    if (errorMessage.length > 0) {
+        response.errorHandlers.send412(errorMessage);
+        return;
+    }
 
     response.end(JSON.stringify(request.params.query));
 }
