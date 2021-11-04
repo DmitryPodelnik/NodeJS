@@ -272,7 +272,7 @@ function tbEditClick(e) {
         let savedDescription = div.savedDescription;
 
         if (Object.keys(data).length > 0) {
-            data.id =  picId;
+            data.id = picId;
             fetch("/api/picture", {
                 method: "PUT",
                 headers: {
@@ -280,16 +280,16 @@ function tbEditClick(e) {
                 },
                 body: JSON.stringify(data)
             })
-            .then(r => r.text())
-            .then(res => {
-                let data = JSON.parse(res);
-                console.log(res);
-            })
-            .catch(err => {
-                alert("error");
-                description.innerHTML = savedDescription;
-                place.innerHTML = savedPlace;
-            })
+                .then(r => r.text())
+                .then(res => {
+                    let data = JSON.parse(res);
+                    console.log(res);
+                })
+                .catch(err => {
+                    alert("error");
+                    description.innerHTML = savedDescription;
+                    place.innerHTML = savedPlace;
+                })
         }
 
         delete div.savedPlace;
@@ -308,13 +308,13 @@ document.addEventListener('keydown', (e) => {
         for (let prop of saveBtns) {
             prop.className = 'tb-edit';
         }
-        
+
         let fields = div.querySelectorAll('p > span, i > span');
         for (let prop of fields) {
             prop.removeAttribute('contenteditable');
         }
     }
-  });
+});
 
 function tbDownloadClick(e) {
     const div = e.target.closest('div');
@@ -323,45 +323,60 @@ function tbDownloadClick(e) {
     window.location = "/download?picId=" + picId;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    // user-block - auth
-    const userBlock = document.querySelector('#user-block');
-    if (!userBlock) {
-        throw "userBlock not found";
-    }
-    // button click 
-    const logBtn = userBlock.querySelector('input[type=button]');
-    if (!logBtn) {
-        throw "logIn button not found";
-    }
-    logBtn.addEventListener('click', () => {
-        const userLogin = userBlock.querySelector('input[type=text]');
-        if (!userLogin) {
-            throw "User login not found";
-        }
-        const userPassword = userBlock.querySelector('input[type=password]');
-        if (!userPassword) {
-            throw "User password not found";
-        }
-        // validation
-        if (userLogin.value.length == 0) {
-            alert("Login cannot be empty");
-            return;
-        }
-
-        if (userPassword.value.length == 0) {
-            alert("Password cannot be empty");
-            return;
-        }
-        fetch(`/api/user?userLogin=${userLogin.value}&userPassword=${userPassword.value}`)
-        .then(r => r.text()) 
-        .then(authUser);
-
-        // console.log(userLogin.value, userPassword.value);
-    });
-});
-
 async function authUser(txt) {
     console.log(txt);
     alert(txt);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const cont = document.querySelector("#auth_container");
+    if (!cont) {
+        throw "auth_container not found";
+    }
+    if (document.cookie.length == 0) {
+        fetch("/templates/auth.tpl")
+            .then(r => r.text())
+            .then(tpl => {
+                cont.innerHTML = tpl;
+                // user-block - auth
+                const userBlock = document.querySelector('#user-block');
+                if (!userBlock) {
+                    throw "userBlock not found";
+                }
+                // button click 
+                const logBtn = userBlock.querySelector('input[type=button]');
+                if (!logBtn) {
+                    throw "logIn button not found";
+                }
+
+                logBtn.addEventListener('click', () => {
+                    const userLogin = userBlock.querySelector('input[type=text]');
+                    if (!userLogin) {
+                        throw "User login not found";
+                    }
+                    const userPassword = userBlock.querySelector('input[type=password]');
+                    if (!userPassword) {
+                        throw "User password not found";
+                    }
+                    // validation
+                    if (userLogin.value.length == 0) {
+                        alert("Login cannot be empty");
+                        return;
+                    }
+
+                    if (userPassword.value.length == 0) {
+                        alert("Password cannot be empty");
+                        return;
+                    }
+                    fetch(`/api/user?userLogin=${userLogin.value}&userPassword=${userPassword.value}`)
+                        .then(r => r.text())
+                        .then(authUser);
+
+                    // console.log(userLogin.value, userPassword.value);
+                });
+            });
+    }
+    else {
+        cont.innerHTML = '';
+    }
+});

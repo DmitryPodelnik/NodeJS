@@ -1,6 +1,4 @@
 const crypto = require('crypto');
-const { resolve } = require('path');
-
 
 module.exports = {
     analyze: function (request, response) {
@@ -66,7 +64,9 @@ function doGet(request, response) {
                     .update(userPassword + results[0].pass_salt)
                     .digest('hex');
                 if (results[0].pass_hash == pass) {
-                    updateUserAuthData(userLogin);
+                    let userId = results[0].id_str;
+                    updateUserAuthData(userId);
+                    response.setHeader('Set-Cookie', `user-id=${userId};max-age=10;path=/`);
                     response.end("Authorization successfull!");
                     return;
                 }
@@ -76,23 +76,29 @@ function doGet(request, response) {
 }
 
 async function getUserByLogin(login) {
-    global.services.dbPool.execute(
-        'SELECT u.*, CAST(u.id AS CHAR) id_str FROM users u WHERE u.login = ?',
-        [login],
-        (err, results) => {
-            if (err) {
-                console.log(err);
-            }
-        });
+    return new Promise((resolve, reject) => {
+        global.services.dbPool.execute(
+            'SELECT u.*, CAST(u.id AS CHAR) id_str FROM users u WHERE u.login = ?',
+            [login],
+            (err, result) => {
+                if (err) {
+                    console.log(err);
+                    reject(err);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+    });
 }
 
-async function updateUserAuthData(login) {
-    global.services.dbPool.query(
-        'UPDATE users SET auth_DT = ? WHERE login = ?',
-        [new Date(), login],
-        (err, results) => {
+function updateUserAuthData(id) {
+    global.services.dbPool.execute(
+        'UPDATE users SET auth_DT = CURRENT_TIMESTAMP WHERE id = ?',
+        [id],
+        err => {
             if (err) {
-                console.log(err);
+                console.log(err);  // updateUserAuthData + " " + 
             }
         });
 }

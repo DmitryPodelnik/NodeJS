@@ -68,6 +68,8 @@ function serverFunction(request, response) {
 function analyze(request, response) {
     // логируем запрос - это must have для всех серверов
     console.log(request.method + " " + request.url);
+    console.log(request.headers.cookie);
+
     // Декодируем запрос: "+" -> пробел, затем decodeURI
     var decodedUrl = request.url.replace(/\+/g, ' ');
     decodedUrl = decodeURIComponent(decodedUrl);
