@@ -28,9 +28,6 @@ var http = require("http"); // HTTP
 var fs = require("fs"); // file system
 
 
-var formidable = require("formidable"); // Form parser
-
-
 var mysql = require("mysql"); // MySQL
 
 
@@ -39,10 +36,6 @@ var crypto = require("crypto"); // Средство криптографии    
 
 var mysql2 = require("mysql2"); // Обновленные средства для MySQL 
 
-
-var pictureController = require("./pictureController");
-
-var userController = require("./userController");
 
 var connectionData = {
   host: 'localhost',
@@ -249,12 +242,14 @@ function analyze(request, response) {
     response.statusCode = 200;
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     response.end("<h1>Node is cool</h1>"); // ~getWriter().print in java
-  } else if (url == 'templates/auth.tpl') {
+  } else if (url == 'templates/auth1.tpl') {
     // шаблон блока авторизации
+    console.log("123");
+
     if (typeof request.params.cookie['user-id'] == 'undefined') {
-      sendFile(WWW_ROOT + "templates/auth.tpl", response);
+      sendFile(WWW_ROOT + "/templates/auth.tpl", response);
     } else {
-      sendFile(WWW_ROOT + "templates/auth_yes.tpl", response);
+      sendFile(WWW_ROOT + "/templates/auth_yes.tpl", response);
     }
   } else {
     // необработанный запрос - "не найдено" (404.html)
@@ -315,7 +310,7 @@ function sendFile(path, response) {
           readStream = false;
 
           if (fs.existsSync(path)) {
-            readStream = fs.createReadStream(path); //if( typeof statusCode == 'undefined' ) statusCode = 200 ;        
+            readStream = fs.createReadStream(path); // if (typeof statusCode == 'undefined') statusCode = 200 ;        
           } else if (fs.existsSync(FILE_404)) {
             readStream = fs.createReadStream(FILE_404);
             statusCode = 404;

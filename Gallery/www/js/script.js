@@ -324,7 +324,7 @@ function tbDownloadClick(e) {
 }
 
 async function authUser(txt) {
-    // txt = 0 | user Id
+    // txt = 0 || user Id
     if (txt == "0") {
         alert("Authorization declined");
     } else {
@@ -335,55 +335,54 @@ async function authUser(txt) {
 
 document.addEventListener("DOMContentLoaded",  loadAuthContainer);
 
+async function authControls() {
+    // user-block - auth
+    const userBlock = document.querySelector('#user-block');
+    if (!userBlock) {
+        throw "userBlock not found";
+    }
+    // button click 
+    const logBtn = userBlock.querySelector('input[type=button]');
+    if (!logBtn) {
+        throw "logIn button not found";
+    }
+
+    logBtn.addEventListener('click', () => {
+        const userLogin = userBlock.querySelector('input[type=text]');
+        if (!userLogin) {
+            throw "User login not found";
+        }
+        const userPassword = userBlock.querySelector('input[type=password]');
+        if (!userPassword) {
+            throw "User password not found";
+        }
+        // validation
+        if (userLogin.value.length == 0) {
+            alert("Login cannot be empty");
+            return;
+        }
+
+        if (userPassword.value.length == 0) {
+            alert("Password cannot be empty");
+            return;
+        }
+        fetch(`/api/user?userLogin=${userLogin.value}&userPassword=${userPassword.value}`)
+            .then(r => r.text())
+            .then(authUser);
+
+        // console.log(userLogin.value, userPassword.value);
+    });
+}
+
 async function loadAuthContainer() {
         const cont = document.querySelector("#auth_container");
         if (!cont) {
             throw "auth_container not found";
         }
-        if (document.cookie.length == 0) {
-            fetch("/templates/auth.tpl")
-                .then(r => r.text())
-                .then(tpl => {
-                    cont.innerHTML = tpl;
-                    // user-block - auth
-                    const userBlock = document.querySelector('#user-block');
-                    if (!userBlock) {
-                        throw "userBlock not found";
-                    }
-                    // button click 
-                    const logBtn = userBlock.querySelector('input[type=button]');
-                    if (!logBtn) {
-                        throw "logIn button not found";
-                    }
-
-                    logBtn.addEventListener('click', () => {
-                        const userLogin = userBlock.querySelector('input[type=text]');
-                        if (!userLogin) {
-                            throw "User login not found";
-                        }
-                        const userPassword = userBlock.querySelector('input[type=password]');
-                        if (!userPassword) {
-                            throw "User password not found";
-                        }
-                        // validation
-                        if (userLogin.value.length == 0) {
-                            alert("Login cannot be empty");
-                            return;
-                        }
-
-                        if (userPassword.value.length == 0) {
-                            alert("Password cannot be empty");
-                            return;
-                        }
-                        fetch(`/api/user?userLogin=${userLogin.value}&userPassword=${userPassword.value}`)
-                            .then(r => r.text())
-                            .then(authUser);
-
-                        // console.log(userLogin.value, userPassword.value);
-                    });
-                });
-        }
-        else {
-            cont.innerHTML = '';
-        }
+        fetch('/templates/auth1.tpl')
+        .then(r => r.text())
+        .then(tpl => { 
+            cont.innerHTML = tpl; 
+            authControls(); 
+        });
 }

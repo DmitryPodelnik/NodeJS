@@ -80,12 +80,12 @@ function doGet(request, response) {
         var userId = results[0].id_str;
         updateUserAuthData(userId);
         response.setHeader('Set-Cookie', "user-id=".concat(userId, ";max-age=10;path=/"));
-        response.end("Authorization successfull!");
+        response.end(userId);
         return;
       }
     }
 
-    response.end("Incorrect login or password");
+    response.end("0");
   })["catch"](function (err) {
     console.log(err);
     response.errorHandlers.send500();

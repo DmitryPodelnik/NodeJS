@@ -9,13 +9,9 @@ const UPLOAD_PATH = WWW_ROOT + "/pictures/";
 // Подключение модулей
 const http = require("http");         // HTTP
 const fs = require("fs");           // file system
-const formidable = require("formidable");   // Form parser
 const mysql = require("mysql");        // MySQL
 const crypto = require("crypto");       // Средство криптографии     (в т.ч. хеш)
 const mysql2 = require("mysql2");       // Обновленные средства для MySQL 
-
-const pictureController = require("./pictureController");
-const userController = require("./userController");
 
 const connectionData = {
     host: 'localhost',      // размещение БД (возможно IP или hostname)
@@ -54,7 +50,6 @@ function serverFunction(request, response) {
         },
     };
 
-
     response.on("close", () => {
         services.dbPool.end();
     });
@@ -75,7 +70,7 @@ function extractCookie(request) {
         for (let c of cookies) {
             let pair = c.split('=');
             if (typeof pair[0] != 'undefined'
-             &&  typeof pair[1] != 'undefined') {
+             && typeof pair[1] != 'undefined') {
                 res[pair[0]] = pair[1];
             }
         }
@@ -171,11 +166,12 @@ function analyze(request, response) {
         response.setHeader('Content-Type', 'text/html; charset=utf-8');
         response.end("<h1>Node is cool</h1>"); // ~getWriter().print in java
     }
-    else if (url == 'templates/auth.tpl') {  // шаблон блока авторизации
+    else if (url == 'templates/auth1.tpl') {  // шаблон блока авторизации
+        console.log("123");
         if (typeof request.params.cookie['user-id'] == 'undefined') {
-            sendFile(WWW_ROOT + "templates/auth.tpl", response);
+            sendFile(WWW_ROOT + "/templates/auth.tpl", response);
         } else {
-            sendFile(WWW_ROOT + "templates/auth_yes.tpl", response);
+            sendFile(WWW_ROOT + "/templates/auth_yes.tpl", response);
         }
     } 
     else {
@@ -220,7 +216,7 @@ async function sendFile(path, response, statusCode = 200) {
     var readStream = false;
     if (fs.existsSync(path)) {
         readStream = fs.createReadStream(path);
-        //if( typeof statusCode == 'undefined' ) statusCode = 200 ;        
+        // if (typeof statusCode == 'undefined') statusCode = 200 ;        
     } else if (fs.existsSync(FILE_404)) {
         readStream = fs.createReadStream(FILE_404);
         statusCode = 404;
