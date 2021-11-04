@@ -1,5 +1,11 @@
 "use strict";
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 document.addEventListener("submit", function (e) {
   e.preventDefault();
   var form = e.target;
@@ -506,20 +512,40 @@ function tbDownloadClick(e) {
 }
 
 function authUser(txt) {
+  var userLogin;
   return regeneratorRuntime.async(function authUser$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          // txt = 0 || user Id
-          if (txt == "0") {
-            alert("Authorization declined");
-          } else {
-            loadAuthContainer();
+          if (!(txt == "0")) {
+            _context2.next = 4;
+            break;
           }
 
+          alert("Authorization declined");
+          _context2.next = 9;
+          break;
+
+        case 4:
+          userLogin = document.querySelector('input[type=text]');
+
+          if (userLogin) {
+            _context2.next = 7;
+            break;
+          }
+
+          throw "User login not found";
+
+        case 7:
+          setCookie("login", userLogin.value, {
+            'max-age': 7200
+          });
+          loadAuthContainer();
+
+        case 9:
           console.log(txt);
 
-        case 2:
+        case 10:
         case "end":
           return _context2.stop();
       }
@@ -528,6 +554,43 @@ function authUser(txt) {
 }
 
 document.addEventListener("DOMContentLoaded", loadAuthContainer);
+
+function setCookie(name, value) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  options = _objectSpread({
+    path: '/'
+  }, options);
+
+  if (options.expires instanceof Date) {
+    options.expires = options.expires.toUTCString();
+  }
+
+  var updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+
+  for (var optionKey in options) {
+    updatedCookie += "; " + optionKey;
+    var optionValue = options[optionKey];
+
+    if (optionValue !== true) {
+      updatedCookie += "=" + optionValue;
+    }
+  }
+
+  document.cookie = updatedCookie;
+}
+
+function deleteCookie(name) {
+  setCookie(name, "", {
+    'max-age': -1
+  });
+} // возвращает куки с указанным name,
+// или undefined, если ничего не найдено
+
+
+function getCookie(name) {
+  var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
 
 function authControls() {
   var userBlock, logBtn;
@@ -558,6 +621,12 @@ function authControls() {
 
         case 6:
           logBtn.addEventListener('click', function () {
+            if (document.cookie.indexOf('user-id') !== -1) {
+              deleteCookie('user-id');
+              loadAuthContainer();
+              return;
+            }
+
             var userLogin = userBlock.querySelector('input[type=text]');
 
             if (!userLogin) {
@@ -613,7 +682,7 @@ function loadAuthContainer() {
           fetch('/templates/auth1.tpl').then(function (r) {
             return r.text();
           }).then(function (tpl) {
-            cont.innerHTML = tpl;
+            cont.innerHTML = tpl.replace("{{login}}", getCookie('login'));
             authControls();
           });
 

@@ -328,12 +328,60 @@ async function authUser(txt) {
     if (txt == "0") {
         alert("Authorization declined");
     } else {
+        const userLogin = document.querySelector('input[type=text]');
+        if (!userLogin) {
+            throw "User login not found";
+        }
+
+        setCookie("login", userLogin.value, {
+            'max-age': 7200
+        });
         loadAuthContainer();
     }
     console.log(txt);
 }
 
-document.addEventListener("DOMContentLoaded",  loadAuthContainer);
+document.addEventListener("DOMContentLoaded", loadAuthContainer);
+
+function setCookie(name, value, options = {}) {
+
+    options = {
+        path: '/',
+        // при необходимости добавьте другие значения по умолчанию
+        ...options
+    };
+
+    if (options.expires instanceof Date) {
+        options.expires = options.expires.toUTCString();
+    }
+
+    let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+
+    for (let optionKey in options) {
+        updatedCookie += "; " + optionKey;
+        let optionValue = options[optionKey];
+        if (optionValue !== true) {
+            updatedCookie += "=" + optionValue;
+        }
+    }
+
+    document.cookie = updatedCookie;
+}
+
+function deleteCookie(name) {
+    setCookie(name, "", {
+        'max-age': -1
+    });
+}
+
+// возвращает куки с указанным name,
+// или undefined, если ничего не найдено
+function getCookie(name) {
+    let matches = document.cookie.match(new RegExp(
+      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+  }
 
 async function authControls() {
     // user-block - auth
@@ -348,6 +396,12 @@ async function authControls() {
     }
 
     logBtn.addEventListener('click', () => {
+        if (document.cookie.indexOf('user-id') !== -1) {
+            deleteCookie('user-id');
+            loadAuthContainer();
+
+            return;
+        }
         const userLogin = userBlock.querySelector('input[type=text]');
         if (!userLogin) {
             throw "User login not found";
@@ -375,14 +429,14 @@ async function authControls() {
 }
 
 async function loadAuthContainer() {
-        const cont = document.querySelector("#auth_container");
-        if (!cont) {
-            throw "auth_container not found";
-        }
-        fetch('/templates/auth1.tpl')
+    const cont = document.querySelector("#auth_container");
+    if (!cont) {
+        throw "auth_container not found";
+    }
+    fetch('/templates/auth1.tpl')
         .then(r => r.text())
-        .then(tpl => { 
-            cont.innerHTML = tpl; 
-            authControls(); 
+        .then(tpl => {
+            cont.innerHTML = tpl.replace("{{login}}", getCookie('login'));
+            authControls();
         });
 }
