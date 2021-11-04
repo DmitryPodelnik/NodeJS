@@ -510,8 +510,14 @@ function authUser(txt) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
+          // txt = 0 | user Id
+          if (txt == "0") {
+            alert("Authorization declined");
+          } else {
+            loadAuthContainer();
+          }
+
           console.log(txt);
-          alert(txt);
 
         case 2:
         case "end":
@@ -521,62 +527,80 @@ function authUser(txt) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  var cont = document.querySelector("#auth_container");
+document.addEventListener("DOMContentLoaded", loadAuthContainer);
 
-  if (!cont) {
-    throw "auth_container not found";
-  }
+function loadAuthContainer() {
+  var cont;
+  return regeneratorRuntime.async(function loadAuthContainer$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          cont = document.querySelector("#auth_container");
 
-  if (document.cookie.length == 0) {
-    fetch("/templates/auth.tpl").then(function (r) {
-      return r.text();
-    }).then(function (tpl) {
-      cont.innerHTML = tpl; // user-block - auth
+          if (cont) {
+            _context3.next = 3;
+            break;
+          }
 
-      var userBlock = document.querySelector('#user-block');
+          throw "auth_container not found";
 
-      if (!userBlock) {
-        throw "userBlock not found";
-      } // button click 
+        case 3:
+          if (document.cookie.length == 0) {
+            fetch("/templates/auth.tpl").then(function (r) {
+              return r.text();
+            }).then(function (tpl) {
+              cont.innerHTML = tpl; // user-block - auth
+
+              var userBlock = document.querySelector('#user-block');
+
+              if (!userBlock) {
+                throw "userBlock not found";
+              } // button click 
 
 
-      var logBtn = userBlock.querySelector('input[type=button]');
+              var logBtn = userBlock.querySelector('input[type=button]');
 
-      if (!logBtn) {
-        throw "logIn button not found";
+              if (!logBtn) {
+                throw "logIn button not found";
+              }
+
+              logBtn.addEventListener('click', function () {
+                var userLogin = userBlock.querySelector('input[type=text]');
+
+                if (!userLogin) {
+                  throw "User login not found";
+                }
+
+                var userPassword = userBlock.querySelector('input[type=password]');
+
+                if (!userPassword) {
+                  throw "User password not found";
+                } // validation
+
+
+                if (userLogin.value.length == 0) {
+                  alert("Login cannot be empty");
+                  return;
+                }
+
+                if (userPassword.value.length == 0) {
+                  alert("Password cannot be empty");
+                  return;
+                }
+
+                fetch("/api/user?userLogin=".concat(userLogin.value, "&userPassword=").concat(userPassword.value)).then(function (r) {
+                  return r.text();
+                }).then(authUser); // console.log(userLogin.value, userPassword.value);
+              });
+            });
+          } else {
+            cont.innerHTML = '';
+          }
+
+        case 4:
+        case "end":
+          return _context3.stop();
       }
-
-      logBtn.addEventListener('click', function () {
-        var userLogin = userBlock.querySelector('input[type=text]');
-
-        if (!userLogin) {
-          throw "User login not found";
-        }
-
-        var userPassword = userBlock.querySelector('input[type=password]');
-
-        if (!userPassword) {
-          throw "User password not found";
-        } // validation
-
-
-        if (userLogin.value.length == 0) {
-          alert("Login cannot be empty");
-          return;
-        }
-
-        if (userPassword.value.length == 0) {
-          alert("Password cannot be empty");
-          return;
-        }
-
-        fetch("/api/user?userLogin=".concat(userLogin.value, "&userPassword=").concat(userPassword.value)).then(function (r) {
-          return r.text();
-        }).then(authUser); // console.log(userLogin.value, userPassword.value);
-      });
-    });
-  } else {
-    cont.innerHTML = '';
-  }
-});
+    }
+  });
+}

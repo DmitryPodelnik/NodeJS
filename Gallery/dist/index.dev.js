@@ -101,37 +101,31 @@ function serverFunction(request, response) {
   });
   request.params = {
     body: "",
-    query: ""
+    query: "",
+    cookie: {}
   };
   analyze(request, response);
 }
 
-function analyze(request, response) {
-  // логируем запрос - это must have для всех серверов
-  console.log(request.method + " " + request.url);
-  console.log(request.headers.cookie); // Декодируем запрос: "+" -> пробел, затем decodeURI
+function extractCookie(request) {
+  var res = {};
 
-  var decodedUrl = request.url.replace(/\+/g, ' ');
-  decodedUrl = decodeURIComponent(decodedUrl); // разделяем запрос по "?" - отделяем параметры
+  if (typeof request.headers.cookie != 'undefined') {
+    /// cookie separated by '; ' 
+    var cookies = request.headers.cookie.split('; '); // name/value separated by '='
 
-  var requestParts = decodedUrl.split("?"); // первая часть (до ?) - сам запрос
-
-  var requestUrl = requestParts[0]; // вторая часть - параметры по схеме key1=val1 & key2=val2
-
-  var params = {};
-
-  if (requestParts.length > 1 // есть вторая часть
-  && requestParts[1].length > 0) {
-    // и она не пустая
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
 
     try {
-      for (var _iterator = requestParts[1].split("&")[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var keyval = _step.value;
-        var pair = keyval.split("=");
-        params[pair[0]] = typeof pair[1] == 'undefined' ? null : pair[1];
+      for (var _iterator = cookies[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var c = _step.value;
+        var pair = c.split('=');
+
+        if (typeof pair[0] != 'undefined' && typeof pair[1] != 'undefined') {
+          res[pair[0]] = pair[1];
+        }
       }
     } catch (err) {
       _didIteratorError = true;
@@ -149,8 +143,59 @@ function analyze(request, response) {
     }
   }
 
-  console.log(params);
-  request.params.query = params; // проверить запрос на спецсимволы (../)
+  return res;
+}
+
+function extractQueryParams(request) {// TODO: replace code to function
+}
+
+function analyze(request, response) {
+  // логируем запрос - это must have для всех серверов
+  console.log(request.method + " " + request.url); // console.log(request.headers.cookie);
+  // Декодируем запрос: "+" -> пробел, затем decodeURI
+
+  var decodedUrl = request.url.replace(/\+/g, ' ');
+  decodedUrl = decodeURIComponent(decodedUrl); // разделяем запрос по "?" - отделяем параметры
+
+  var requestParts = decodedUrl.split("?"); // первая часть (до ?) - сам запрос
+
+  var requestUrl = requestParts[0]; // вторая часть - параметры по схеме key1=val1 & key2=val2
+
+  var params = {};
+
+  if (requestParts.length > 1 // есть вторая часть
+  && requestParts[1].length > 0) {
+    // и она не пустая
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+      for (var _iterator2 = requestParts[1].split("&")[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        var keyval = _step2.value;
+        var pair = keyval.split("=");
+        params[pair[0]] = typeof pair[1] == 'undefined' ? null : pair[1];
+      }
+    } catch (err) {
+      _didIteratorError2 = true;
+      _iteratorError2 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+          _iterator2["return"]();
+        }
+      } finally {
+        if (_didIteratorError2) {
+          throw _iteratorError2;
+        }
+      }
+    }
+  }
+
+  request.params.query = params;
+  console.log(request.params.query);
+  request.params.cookie = extractCookie(request);
+  console.log(request.params.cookie); // проверить запрос на спецсимволы (../)
 
   var restrictedParts = ["../", ";"];
 
@@ -204,6 +249,13 @@ function analyze(request, response) {
     response.statusCode = 200;
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     response.end("<h1>Node is cool</h1>"); // ~getWriter().print in java
+  } else if (url == 'templates/auth.tpl') {
+    // шаблон блока авторизации
+    if (typeof request.params.cookie['user-id'] == 'undefined') {
+      sendFile(WWW_ROOT + "templates/auth.tpl", response);
+    } else {
+      sendFile(WWW_ROOT + "templates/auth_yes.tpl", response);
+    }
   } else {
     // необработанный запрос - "не найдено" (404.html)
     sendFile(FILE_404, response, 404);
@@ -427,13 +479,13 @@ function viewDb(request, response) {
           console.log(fields);
           var table = "<table>";
           table += "\n                    <caption>Users table</caption>\n                    <tr>\n                        <th>id</th>\n                        <th>login</th>\n                        <th>pass_salt</th>\n                        <th>pass_hash</th>\n                        <th>email</th>\n                        <th>picture</th>\n                    </tr>";
-          var _iteratorNormalCompletion2 = true;
-          var _didIteratorError2 = false;
-          var _iteratorError2 = undefined;
+          var _iteratorNormalCompletion3 = true;
+          var _didIteratorError3 = false;
+          var _iteratorError3 = undefined;
 
           try {
-            for (var _iterator2 = results[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              fields = _step2.value;
+            for (var _iterator3 = results[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+              fields = _step3.value;
               table += "<tr><td>" + fields.id + "</td>";
               table += "<td>" + fields.login + "</td>";
               table += "<td>" + fields.pass_salt + "</td>";
@@ -442,16 +494,16 @@ function viewDb(request, response) {
               table += "<td>" + fields.picture + "</td></tr>";
             }
           } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-                _iterator2["return"]();
+              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+                _iterator3["return"]();
               }
             } finally {
-              if (_didIteratorError2) {
-                throw _iteratorError2;
+              if (_didIteratorError3) {
+                throw _iteratorError3;
               }
             }
           }
@@ -476,13 +528,13 @@ function viewDbPool(request, response) {
       console.log(fields);
       var table = "<table border=1 cellspacing=0>";
       table += "\n            <caption>Users table POOL</caption>\n            <tr>\n                <th>id</th>\n                <th>login</th>\n                <th>pass_salt</th>\n                <th>pass_hash</th>\n                <th>email</th>\n                <th>picture</th>\n            </tr>";
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
+      var _iteratorNormalCompletion4 = true;
+      var _didIteratorError4 = false;
+      var _iteratorError4 = undefined;
 
       try {
-        for (var _iterator3 = results[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          fields = _step3.value;
+        for (var _iterator4 = results[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+          fields = _step4.value;
           table += "<tr><td>" + fields.id + "</td>";
           table += "<td>" + fields.login + "</td>";
           table += "<td>" + fields.pass_salt + "</td>";
@@ -491,16 +543,16 @@ function viewDbPool(request, response) {
           table += "<td>" + fields.picture + "</td></tr>";
         }
       } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
-            _iterator3["return"]();
+          if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
+            _iterator4["return"]();
           }
         } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
+          if (_didIteratorError4) {
+            throw _iteratorError4;
           }
         }
       }
@@ -522,13 +574,13 @@ function viewDb2(request, response) {
 
     var table = "<table border=1 cellspacing=0>";
     table += "\n                    <caption>Users table POOL</caption>\n                    <tr>\n                        <th>id</th>\n                        <th>login</th>\n                        <th>pass_salt</th>\n                        <th>pass_hash</th>\n                        <th>email</th>\n                        <th>picture</th>\n                    </tr>";
-    var _iteratorNormalCompletion4 = true;
-    var _didIteratorError4 = false;
-    var _iteratorError4 = undefined;
+    var _iteratorNormalCompletion5 = true;
+    var _didIteratorError5 = false;
+    var _iteratorError5 = undefined;
 
     try {
-      for (var _iterator4 = results[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-        fields = _step4.value;
+      for (var _iterator5 = results[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+        fields = _step5.value;
         table += "<tr><td>" + fields.id + "</td>";
         table += "<td>" + fields.login + "</td>";
         table += "<td>" + fields.pass_salt + "</td>";
@@ -537,16 +589,16 @@ function viewDb2(request, response) {
         table += "<td>" + fields.picture + "</td></tr>";
       }
     } catch (err) {
-      _didIteratorError4 = true;
-      _iteratorError4 = err;
+      _didIteratorError5 = true;
+      _iteratorError5 = err;
     } finally {
       try {
-        if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
-          _iterator4["return"]();
+        if (!_iteratorNormalCompletion5 && _iterator5["return"] != null) {
+          _iterator5["return"]();
         }
       } finally {
-        if (_didIteratorError4) {
-          throw _iteratorError4;
+        if (_didIteratorError5) {
+          throw _iteratorError5;
         }
       }
     }
