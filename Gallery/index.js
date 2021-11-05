@@ -23,6 +23,7 @@ const connectionData = {
 };
 
 const services = { dbPool: null };
+const session = {};
 
 http.ServerResponse.prototype.send418 = async function () {
     this.statusCode = 418;
@@ -75,6 +76,15 @@ function extractCookie(request) {
             }
         }
     }
+    // session control
+    if (typeof res['session-id'] != 'undefined') {  // request содержит session id
+        if (typeof session['session-id'] == 'undefined') {  // session id существует в сессии
+            session[res['session-id']] = new Date();
+        } else {  // start of new session
+
+        }
+    }
+
     return res;
 }
 
@@ -107,9 +117,9 @@ function analyze(request, response) {
         }
     }
     request.params.query = params;
-    console.log(request.params.query);
+    // console.log(request.params.query);
     request.params.cookie = extractCookie(request);
-    console.log(request.params.cookie);
+    console.log(request.params.query, request.params.cookie, session);
 
     // проверить запрос на спецсимволы (../)
     const restrictedParts = ["../", ";"];
@@ -167,7 +177,6 @@ function analyze(request, response) {
         response.end("<h1>Node is cool</h1>"); // ~getWriter().print in java
     }
     else if (url == 'templates/auth1.tpl') {  // шаблон блока авторизации
-        console.log("123");
         if (typeof request.params.cookie['user-id'] == 'undefined') {
             sendFile(WWW_ROOT + "/templates/auth.tpl", response);
         } else {
