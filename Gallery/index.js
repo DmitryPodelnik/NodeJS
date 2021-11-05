@@ -2,9 +2,10 @@
 const HTTP_PORT = 80;
 const WWW_ROOT = "www";
 const FILE_404 = WWW_ROOT + "/404.html";
-const INDEX_HTML = WWW_ROOT + "/index.html";
-const DEFAULT_MIME = "application/octet-stream";
-const UPLOAD_PATH = WWW_ROOT + "/pictures/";
+const INDEX_HTML           = WWW_ROOT + "/index.html";
+const DEFAULT_MIME         = "application/octet-stream";
+const UPLOAD_PATH          = WWW_ROOT + "/pictures/";
+const MAX_SESSION_INTERVAL = 10000;  // milliseconds
 
 // Подключение модулей
 const http = require("http");         // HTTP
@@ -23,7 +24,22 @@ const connectionData = {
 };
 
 const services = { dbPool: null };
-const session = {};
+const sessions = {};
+let session;
+
+// Session cleaner 
+setInterval(() => {
+    const moment = new Date();
+    let expired = [];
+    for (let index in sessions) {
+        if (moment - sessions[index].timestamp > MAX_SESSION_INTERVAL) {
+            expired.push(index);
+        }
+    }
+    for (let index of expired) {
+        delete sessions[index];
+    }
+}, 1e4)
 
 http.ServerResponse.prototype.send418 = async function () {
     this.statusCode = 418;
@@ -63,7 +79,7 @@ function serverFunction(request, response) {
 }
 
 function extractCookie(request) {
-    let res = {}; 
+    let res = {};
     if (typeof request.headers.cookie != 'undefined') {
         /// cookie separated by '; ' 
         const cookies = request.headers.cookie.split('; ');
@@ -71,28 +87,53 @@ function extractCookie(request) {
         for (let c of cookies) {
             let pair = c.split('=');
             if (typeof pair[0] != 'undefined'
-             && typeof pair[1] != 'undefined') {
+                && typeof pair[1] != 'undefined') {
                 res[pair[0]] = pair[1];
             }
         }
     }
-    // session control
-    if (typeof res['session-id'] != 'undefined') {  // request содержит session id
-        if (typeof session['session-id'] == 'undefined') {  // session id существует в сессии
-            session[res['session-id']] = new Date();
-        } else {  // start of new session
-
-        }
-    }
-
     return res;
+}
+
+async function startSession(request) {
+    return new Promise(function(resolve, reject) {
+        if (typeof request.params.cookie['session-id'] != 'undefined') { // request содержит session id
+            const sessionId = request.params.cookie['session-id'];
+            if (typeof sessions[sessionId] == 'undefined') {  // start of new session
+                // find data about User
+                global.services.dbPool.execute(
+                    "SELECT * FROM users WHERE id = ?",
+                    [sessionId],
+                    (err, results) => {
+                        if (err) {
+                            console.log("startSession" + err);
+                            session = null;
+                        } else {
+                            sessions[sessionId] = {
+                                "timestamp": new Date(),
+                                "user": results
+                            };
+                            session = sessions[sessionId];
+                        }
+                        resolve(session);
+                    }
+                );
+            } else {  // start of new session
+                session = sessions[sessionId];
+                resolve(session);
+            }
+        } else {
+            session = null;
+            resolve(session);
+        }
+    });
 }
 
 function extractQueryParams(request) {
     // TODO: replace code to function
 }
 
-function analyze(request, response) {
+async function analyze(request, response) {
     // логируем запрос - это must have для всех серверов
     console.log(request.method + " " + request.url);
     // console.log(request.headers.cookie);
@@ -119,6 +160,7 @@ function analyze(request, response) {
     request.params.query = params;
     // console.log(request.params.query);
     request.params.cookie = extractCookie(request);
+    await startSession(request);
     console.log(request.params.query, request.params.cookie, session);
 
     // проверить запрос на спецсимволы (../)
@@ -182,7 +224,7 @@ function analyze(request, response) {
         } else {
             sendFile(WWW_ROOT + "/templates/auth_yes.tpl", response);
         }
-    } 
+    }
     else {
         // необработанный запрос - "не найдено" (404.html)
         sendFile(FILE_404, response, 404);
@@ -470,20 +512,20 @@ function viewJunk(request, response) {
 
 function viewDownload(request, response) {
     global.services.dbPool.execute(
-      "SELECT filename FROM pictures WHERE id = ?",
-      [request.params.query.picId],
-      (err, results) => {
-          if (err) {
-              console.log(err);
-              response.errorHandlers.send500();
-          } else {
+        "SELECT filename FROM pictures WHERE id = ?",
+        [request.params.query.picId],
+        (err, results) => {
+            if (err) {
+                console.log(err);
+                response.errorHandlers.send500();
+            } else {
                 response.setHeader('Content-Type', 'application/octet-stream');
                 response.setHeader('Content-Disposition', 'attachment; ' + `filename="${results[0].filename}"`);
-            // TODO: set name for file
+                // TODO: set name for file
                 fs.createReadStream(UPLOAD_PATH + results[0].filename)
-                .pipe(response);
-          }
-      }
+                    .pipe(response);
+            }
+        }
     );
 }
 
