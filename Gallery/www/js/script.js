@@ -394,7 +394,7 @@ async function authControls() {
     if (!logBtn) {
         throw "logIn button not found";
     }
-    if (userBlock.classList.contains('userblock-auth')) {  // Выход
+    if (userBlock.classList.contains('user-block-auth')) {  // Выход
         logBtn.addEventListener('click', () => {
             fetch(`/api/user?logout`)
             .then(r => r.text())

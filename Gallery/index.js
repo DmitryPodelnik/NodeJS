@@ -5,7 +5,7 @@ const FILE_404 = WWW_ROOT + "/404.html";
 const INDEX_HTML           = WWW_ROOT + "/index.html";
 const DEFAULT_MIME         = "application/octet-stream";
 const UPLOAD_PATH          = WWW_ROOT + "/pictures/";
-const MAX_SESSION_INTERVAL = 10000;  // milliseconds
+const MAX_SESSION_INTERVAL = 100000;  // milliseconds
 
 // Подключение модулей
 const http = require("http");         // HTTP
@@ -25,7 +25,7 @@ const connectionData = {
 
 const services = { dbPool: null };
 const sessions = {};
-let session;
+global.session = null;
 
 // Session cleaner 
 setInterval(() => {
@@ -37,8 +37,8 @@ setInterval(() => {
         }
     }
     for (let index of expired) {
-        if (session == sessions[index]) {
-            session = null;
+        if (global.session == sessions[index]) {
+            global.session = null;
         }
         delete sessions[index];
     }
@@ -110,24 +110,24 @@ async function startSession(request) {
                     (err, results) => {
                         if (err) {
                             console.log("startSession" + err);
-                            session = null;
+                            global.session = null;
                         } else {
                             sessions[sessionId] = {
                                 "timestamp": new Date(),
-                                "user": results
+                                "user": results[0],
                             };
-                            session = sessions[sessionId];
+                            global.session = sessions[sessionId];
                         }
-                        resolve(session);
+                        resolve(global.session);
                     }
                 );
             } else {  // start of new session
-                session = sessions[sessionId];
-                resolve(session);
+                global.session = sessions[sessionId];
+                resolve(global.session);
             }
         } else {
-            session = null;
-            resolve(session);
+            global.session = null;
+            resolve(global.session);
         }
     });
 }
@@ -164,7 +164,7 @@ async function analyze(request, response) {
     // console.log(request.params.query);
     request.params.cookie = extractCookie(request);
     await startSession(request);
-    console.log(request.params.query, request.params.cookie); //, session);
+    console.log(request.params.query, request.params.cookie); //, global.session);
 
     // проверить запрос на спецсимволы (../)
     const restrictedParts = ["../", ";"];
@@ -222,10 +222,19 @@ async function analyze(request, response) {
         response.end("<h1>Node is cool</h1>"); // ~getWriter().print in java
     }
     else if (url == 'templates/auth1.tpl') {  // шаблон блока авторизации
-        if (!session || !session.user) {
+        if (!global.session || !global.session.user) {
             sendFile(WWW_ROOT + "/templates/auth.tpl", response);
         } else {
-            sendFile(WWW_ROOT + "/templates/auth_yes.tpl", response);
+            // sendFile(WWW_ROOT + "/templates/auth_yes.tpl", response);
+            fs.readFile(WWW_ROOT + "/templates/auth_yes.tpl", (err, data) => {
+                if (err) {
+                    console.log("/templates/auth_yes.tpl: " + err);
+                    response.errorHandlers.send500();
+                }
+                response.end(
+                    data.toString().replace('{{login}}', global.session.user.login)
+                );
+            });
         }
     }
     else {

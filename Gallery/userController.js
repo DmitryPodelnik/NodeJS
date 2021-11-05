@@ -29,7 +29,13 @@ module.exports = {
 
 function doGet(request, response) {
     // if ?/logout 
+    if (typeof request.params.query.logout != 'undefined') {
+        global.session = null;
+        response.setHeader('Set-Cookie', 'session-id=0;max-age=100;path=/');
+        response.end("Done");
 
+        return;
+    }
     // else 
     // server-side validation 
     let errorMessage = "";
