@@ -37,6 +37,9 @@ setInterval(() => {
         }
     }
     for (let index of expired) {
+        if (session == sessions[index]) {
+            session = null;
+        }
         delete sessions[index];
     }
 }, 1e4)
@@ -161,7 +164,7 @@ async function analyze(request, response) {
     // console.log(request.params.query);
     request.params.cookie = extractCookie(request);
     await startSession(request);
-    console.log(request.params.query, request.params.cookie, session);
+    console.log(request.params.query, request.params.cookie); //, session);
 
     // проверить запрос на спецсимволы (../)
     const restrictedParts = ["../", ";"];
@@ -219,7 +222,7 @@ async function analyze(request, response) {
         response.end("<h1>Node is cool</h1>"); // ~getWriter().print in java
     }
     else if (url == 'templates/auth1.tpl') {  // шаблон блока авторизации
-        if (typeof request.params.cookie['user-id'] == 'undefined') {
+        if (!session || !session.user) {
             sendFile(WWW_ROOT + "/templates/auth.tpl", response);
         } else {
             sendFile(WWW_ROOT + "/templates/auth_yes.tpl", response);

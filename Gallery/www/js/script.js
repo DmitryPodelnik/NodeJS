@@ -347,7 +347,7 @@ function setCookie(name, value, options = {}) {
 
     options = {
         path: '/',
-        // при необходимости добавьте другие значения по умолчанию
+        // при необходимости добавить другие значения по умолчанию
         ...options
     };
 
@@ -378,10 +378,10 @@ function deleteCookie(name) {
 // или undefined, если ничего не найдено
 function getCookie(name) {
     let matches = document.cookie.match(new RegExp(
-      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
     ));
     return matches ? decodeURIComponent(matches[1]) : undefined;
-  }
+}
 
 async function authControls() {
     // user-block - auth
@@ -394,38 +394,46 @@ async function authControls() {
     if (!logBtn) {
         throw "logIn button not found";
     }
-
-    logBtn.addEventListener('click', () => {
-        if (document.cookie.indexOf('user-id') !== -1) {
-            deleteCookie('user-id');
-            loadAuthContainer();
-
-            return;
-        }
-        const userLogin = userBlock.querySelector('input[type=text]');
-        if (!userLogin) {
-            throw "User login not found";
-        }
-        const userPassword = userBlock.querySelector('input[type=password]');
-        if (!userPassword) {
-            throw "User password not found";
-        }
-        // validation
-        if (userLogin.value.length == 0) {
-            alert("Login cannot be empty");
-            return;
-        }
-
-        if (userPassword.value.length == 0) {
-            alert("Password cannot be empty");
-            return;
-        }
-        fetch(`/api/user?userLogin=${userLogin.value}&userPassword=${userPassword.value}`)
+    if (userBlock.classList.contains('userblock-auth')) {  // Выход
+        logBtn.addEventListener('click', () => {
+            fetch(`/api/user?logout`)
             .then(r => r.text())
-            .then(authUser);
+            .then(loadAuthContainer);
+        });
+    } else {  // вход
 
-        // console.log(userLogin.value, userPassword.value);
-    });
+        logBtn.addEventListener('click', () => {
+            // if (document.cookie.indexOf('user-id') !== -1) {
+            //     deleteCookie('user-id');
+            //     loadAuthContainer();
+
+            //     return;
+            // }
+            const userLogin = userBlock.querySelector('input[type=text]');
+            if (!userLogin) {
+                throw "User login not found";
+            }
+            const userPassword = userBlock.querySelector('input[type=password]');
+            if (!userPassword) {
+                throw "User password not found";
+            }
+            // validation
+            if (userLogin.value.length == 0) {
+                alert("Login cannot be empty");
+                return;
+            }
+
+            if (userPassword.value.length == 0) {
+                alert("Password cannot be empty");
+                return;
+            }
+            fetch(`/api/user?userLogin=${userLogin.value}&userPassword=${userPassword.value}`)
+                .then(r => r.text())
+                .then(authUser);
+
+            // console.log(userLogin.value, userPassword.value);
+        });
+    }
 }
 
 async function loadAuthContainer() {

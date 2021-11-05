@@ -28,6 +28,9 @@ module.exports = {
 };
 
 function doGet(request, response) {
+    // if ?/logout 
+
+    // else 
     // server-side validation 
     let errorMessage = "";
     let userLogin, userPassword;
