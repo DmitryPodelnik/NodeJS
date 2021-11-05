@@ -444,7 +444,7 @@ async function loadAuthContainer() {
     fetch('/templates/auth1.tpl')
         .then(r => r.text())
         .then(tpl => {
-            cont.innerHTML = tpl.replace("{{login}}", getCookie('login'));
+            cont.innerHTML = tpl;  // tpl.replace("{{login}}", getCookie('login'));
             authControls();
         });
 }

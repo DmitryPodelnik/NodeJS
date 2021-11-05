@@ -231,9 +231,17 @@ async function analyze(request, response) {
                     console.log("/templates/auth_yes.tpl: " + err);
                     response.errorHandlers.send500();
                 }
-                response.end(
-                    data.toString().replace('{{login}}', global.session.user.login)
-                );
+
+                let template = data.toString();
+                template = template.replace('{{login}}', global.session.user.login)
+                                   .replace('{{email}}', global.session.user.email);
+                if (!global.session.user.picture) {
+                    template = template.replace('{{image-source}}', '../images/anonim.jpg');
+                } else {
+                    template = template.replace('{{image-source}}', '../pictures/' + global.session.user.picture);
+                }
+
+                response.end(template);
             });
         }
     }
