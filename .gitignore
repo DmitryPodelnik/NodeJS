@@ -8,6 +8,7 @@
 node_modules/
 pictures/
 homework/
+help/
 
 # User-specific files
 *.rsuser
