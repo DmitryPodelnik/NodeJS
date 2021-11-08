@@ -50,6 +50,14 @@ document.addEventListener("submit", (e) => {
         .then(console.log);
     */
 
+    // user-id (if present) -- <div... id="user-block" user-id="{{id_str}}"
+    const userBlock = document.getElementById("user-block");
+    if (userBlock) {
+        const userId = userBlock.getAttribute("user-id");
+        if (userId) {
+            formData.append("users-id", userId);
+        }
+    }
 
     fetch("/api/picture", {
         method: "POST",
@@ -400,6 +408,12 @@ async function authControls() {
             .then(r => r.text())
             .then(loadAuthContainer);
         });
+        // selector - filter <select id="filter-shown"
+        const filterShown = document.getElementById('filter-shown');
+        if (filterShown) {
+            filterShown.addEventListener('change', filterShownChange);
+        }
+
     } else {  // вход
 
         logBtn.addEventListener('click', () => {
@@ -447,4 +461,8 @@ async function loadAuthContainer() {
             cont.innerHTML = tpl;  // tpl.replace("{{login}}", getCookie('login'));
             authControls();
         });
+}
+
+function filterShownChange() {
+    console.log(e.target.value);
 }

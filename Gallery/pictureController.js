@@ -156,6 +156,7 @@ function doPost(request, response) {
                     description: fields.description,
                     place: fields.place,
                     filename: savedName,
+                    "users_id": fields["users_id"],
                 }, request.services)
                     .then(results => {
                         res = { status: results.affectedRows };
@@ -296,12 +297,13 @@ function validateId(body) {
 }
 
 function addPicture(pic, services) {
-    const query = 'INSERT INTO pictures (title, description, place, filename ) VALUES (?, ?, ?, ?)';
+    const query = 'INSERT INTO pictures (title, description, place, filename, users_id) VALUES (?, ?, ?, ?, ?)';
     const params = [
         pic.title,
         pic.description,
         pic.place,
         pic.filename,
+        pic.users_id,
     ];
     return new Promise((resolve, reject) => {
         services.dbPool.execute(query, params, (err, results) => {
@@ -335,13 +337,18 @@ function validatePictureForm(fields, files) {
     }
 
     // place optional. But if present then should be non-empty
-    if (typeof files["place"] != 'undefined'
+    if (typeof fields["place"] != 'undefined'
         && fields["place"].length == 0) {
         return "Place should be non-empty";
     }
 
-    if (typeof files["picture"] == 'undefined') {
+    if (typeof fields["picture"] == 'undefined') {
         return "File required";
+    }
+
+    // users_id optional:
+    if (typeof fields["users_id"] == 'undefined') {
+        fields["users_id"] = null;
     }
 
     return true;
