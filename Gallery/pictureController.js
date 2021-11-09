@@ -55,16 +55,30 @@ function doOptions(request, response) {
 
 function doGet(request, response) {
     console.log(request.params);
-    var picQuery = "SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p ";
-    if (typeof request.params.query.deleted == 'undefined') {
-        picQuery += "WHERE p.delete_DT IS NULL";
-    } else {
-        picQuery += "WHERE p.delete_DT IS NOT NULL";
-    }
-    // Возврат JSON данных по всем картинкам
+    let picQuery = "SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p ";
+    let conditions = "WHERE ";
+    let queryParams = [];
+    let limits = " LIMIT 0, 4";  // pagination
 
+    if (typeof request.params.query.deleted == 'undefined') {
+        conditions += " p.delete_DT IS NULL";
+    } else {
+        conditions += " p.delete_DT IS NOT NULL";
+    }
+
+    if (typeof request.params.query.userid != 'undefined') {  // own pictures
+        conditions += " AND p.users_id = ? ";
+        queryParams.push(request.params.query.userid);
+    }
+    else if (typeof request.params.query.exceptid != 'undefined') {  // not own pictures
+        conditions += " AND (p.users_id <> ? OR p.users_id IS NULL) ";
+        queryParams.push(request.params.query.exceptid);
+    }
+
+    // Возврат JSON данных по всем картинкам
     request.services.dbPool.execute(
-        picQuery,
+        picQuery + conditions + limits,
+        queryParams,
         (err, results) => {
             if (err) {
                 console.log(err);
