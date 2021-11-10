@@ -110,7 +110,60 @@ function findUserId() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadPictures();
+    // создаем объект galleryWindow
+    window.galleryWindow = {
+        state: {},
+        changeState: s => {
+            if (typeof s == 'undefined') {
+                return;
+            }
+            const state = window.galleryWindow.state;
+
+            if (typeof s["pageNumber"] != "undefined") {
+                state.pageNumber = s["pageNumber"];
+            }
+            if (typeof s["userMode"] != "undefined" && s["userMode"] != state.userMode) {
+                state.userMode = s["userMode"];
+                state.pageNumber = 1;
+            }
+
+            let url = "/api/picture?page=" + state.pageNumber; 
+            if (state.userMode == 1) {
+                url += "&userid=" + findUserId();
+            }
+            else if (state.userMode == 2) {  // not own
+                url += "&exceptid=" + findUserId();
+            } else {  // all
+                
+            }
+
+            fetch(url)
+                .then(r => r.text())
+                .then(t => {
+                    // console.log(t);
+                    const j = JSON.parse(t); // или .then(r => r.json())
+                    const cont = document.querySelector("#gallery-container");
+
+                    // вариант 4
+
+                    fetch("/templates/picture.tpl")
+                        .then(r => r.text())
+                        .then(tpl => {
+                            let html = "";
+                            for (let p of j) {
+                                html += tpl.replace("{{id}}", p.id_str)
+                                    .replace("{{title}}", p.title)
+                                    .replace("{{description}}", p.description)
+                                    .replace("{{place}}", p.place)
+                                    .replace("{{filename}}", p.filename);
+                            }
+                            cont.innerHTML = html;
+                            addToolButtonListeners();
+                        });
+                });
+        }
+    };
+    window.galleryWindow.changeState({ pageNumber: 1, userMode: 0 });
 
     // вариант 1
     // const cont = document.querySelector("#gallery-container");
@@ -512,8 +565,9 @@ function prevPageButtonClick(e) {
     if (page > 1) {
         page--;
         paginationBlock.setAttribute("page-number", page);
+        window.galleryWindow.changeState({ pageNumber: page });
     }
-    console.log(page);
+    // console.log(page);
 }
 
 function nextPageButtonClick(e) {
@@ -522,6 +576,7 @@ function nextPageButtonClick(e) {
     if (page < 10) {
         page++;
         paginationBlock.setAttribute("page-number", page);
+        window.galleryWindow.changeState({ pageNumber: page });
     }
     console.log(page);
 }
