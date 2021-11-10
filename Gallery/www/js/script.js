@@ -159,6 +159,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             }
                             cont.innerHTML = html;
                             addToolButtonListeners();
+                            document.dispatchEvent(new CustomEvent(
+                                "galleryWindowChange",
+                                { detail: window.galleryWindow.state }
+                            ));
                         });
                 });
         }
@@ -565,7 +569,7 @@ function prevPageButtonClick(e) {
     if (page > 1) {
         page--;
         paginationBlock.setAttribute("page-number", page);
-        window.currentPageNumber.innerText = page;
+        // window.currentPageNumber.innerText = page;
         window.galleryWindow.changeState({ pageNumber: page });
     }
     // console.log(page);
@@ -577,7 +581,14 @@ function nextPageButtonClick(e) {
     if (page < 10) {
         page++;
         paginationBlock.setAttribute("page-number", page);
+        // window.currentPageNumber.innerText = page;
         window.galleryWindow.changeState({ pageNumber: page });
     }
-    console.log(page);
+    // console.log(page);
 }
+
+function currentPageNumber(e) {
+    window.currentPageNumber.innerText = e.detail.pageNumber;
+}
+
+document.addEventListener("galleryWindowChange", currentPageNumber);

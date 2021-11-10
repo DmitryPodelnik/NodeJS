@@ -9,14 +9,15 @@
 <body>
     <h1>Events</h1>
     <button id="btn" onclick="document.dispatchEvent(new Event('btnPress'))">Raise event</button>
+    <button id="btn" onclick="document.dispatchEvent(new CustomEvent('btnPress', {detail: {'txt': 'Hello'}}))">Raise event</button>
     <p id="par"></p>
     <p id="par2"></p>
     <script>
         function parHandler() {
             par.innerHTML = "Event ";
         }
-        function par2Handler() {
-            par2.innerHTML = "Event ";
+        function par2Handler(e) {
+            par2.innerHTML = "Event " + e.detail.txt;
         }
 
         document.addEventListener('btnPress', parHandler);
