@@ -17,21 +17,21 @@ module.exports = {
         const method = request.method.toUpperCase();
         switch (method) {
             case 'GET':  // возврат списка картинки
-            response.setHeader('Access-Control-Allow-Origin', '*');
+                response.setHeader('Access-Control-Allow-Origin', '*');
                 doGet(request, response);
                 break;
             case 'POST':  // загрузка новой картинки
                 doPost(request, response);
                 break;
             case 'PUT': //
-            response.setHeader('Access-Control-Allow-Origin', '*');
+                response.setHeader('Access-Control-Allow-Origin', '*');
                 doPut(request, response);
                 break;
             case 'DELETE': //
                 doDelete(request, response);
                 break;
             case 'OPTIONS': //
-            response.setHeader('Access-Control-Allow-Origin', '*');
+                response.setHeader('Access-Control-Allow-Origin', '*');
                 doOptions(request, response);
                 break;
 
@@ -54,11 +54,13 @@ function doOptions(request, response) {
 }
 
 function doGet(request, response) {
-    console.log(request.params);
-    let picQuery = "SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p ";
+    // Работа с пагинацией проходит в два этапа:
+    // 1. Определяем количество записей и емкость страницы (в данном случае - 4)
+    // 2. Формируем запрос на выборку
+
+    // Учет всех условий должен быть на 1-м этапе, так как от него зависит общее количество
     let conditions = "WHERE ";
     let queryParams = [];
-    let limits = " LIMIT 0, 4";  // pagination
 
     if (typeof request.params.query.deleted == 'undefined') {
         conditions += " p.delete_DT IS NULL";
@@ -74,22 +76,40 @@ function doGet(request, response) {
         conditions += " AND (p.users_id <> ? OR p.users_id IS NULL) ";
         queryParams.push(request.params.query.exceptid);
     }
-
-    // Возврат JSON данных по всем картинкам
+    // По собранным условиям определяем кол-во записей
+    const cntQuery = "SELECT COUNT(*) AS cnt FROM pictures p " + conditions;
     request.services.dbPool.execute(
-        picQuery + conditions + limits,
+        cntQuery,
         queryParams,
         (err, results) => {
             if (err) {
                 console.log(err);
                 response.errorHandlers.send500();
             } else {
-                // console.log(results);
-                response.setHeader('Content-Type', 'application/json');
-                response.end(JSON.stringify(results));
-            }
-        });
+                results[0].cnt;  // кол-во записей
+                // этап 2: определяем лимиты и запрашиваем данные
+                const perPage = 4;
+                const pageNumber = request.params.query.page ?? 1;
+                let limits = ` LIMIT ${perPage * (pageNumber - 1)}, ${perPage}`;  // pagination
 
+                const picQuery = "SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p " + conditions + limits;
+                // Возврат JSON данных по всем картинкам
+                request.services.dbPool.execute(
+                    picQuery + conditions + limits,
+                    queryParams,
+                    (err, results) => {
+                        if (err) {
+                            console.log(err);
+                            response.errorHandlers.send500();
+                        } else {
+                            // console.log(results);
+                            response.setHeader('Content-Type', 'application/json');
+                            response.end(JSON.stringify(results));
+                        }
+                    });
+            }
+        }
+    );
 
     // request.services.dbPool.execute("SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p WHERE p.delete_DT IS NULL", (err, results) => {
     //    if (err) {
@@ -274,12 +294,12 @@ function updatePicture(body, request) {
 
     return new Promise((resolve, reject) => {
         global.services.dbPool.query(picQuery, picParams, (err, results) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(results);
-                }
-            });
+            if (err) {
+                reject(err);
+            } else {
+                resolve(results);
+            }
+        });
     });
 }
 

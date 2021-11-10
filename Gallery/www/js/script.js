@@ -565,6 +565,7 @@ function prevPageButtonClick(e) {
     if (page > 1) {
         page--;
         paginationBlock.setAttribute("page-number", page);
+        window.currentPageNumber.innerText = page;
         window.galleryWindow.changeState({ pageNumber: page });
     }
     // console.log(page);
