@@ -2,7 +2,6 @@
 const formidable = require("formidable");   // Form parser
 const fs = require("fs");           // file system
 
-const HTTP_PORT = 80;
 const WWW_ROOT = "www";
 const FILE_404 = WWW_ROOT + "/404.html";
 const INDEX_HTML = WWW_ROOT + "/index.html";
@@ -86,9 +85,10 @@ function doGet(request, response) {
                 console.log(err);
                 response.errorHandlers.send500();
             } else {
-                results[0].cnt;  // кол-во записей
+                const totalCnt = results[0].cnt;  // кол-во записей
                 // этап 2: определяем лимиты и запрашиваем данные
                 const perPage = 4;
+                const lastPage = Math.ceil(totalCnt / perPage);  // (11, 4) -> 3, (12, 4) -> 3, (13, 4) -> 4
                 const pageNumber = request.params.query.page ?? 1;
                 let limits = ` LIMIT ${perPage * (pageNumber - 1)}, ${perPage}`;  // pagination
 
@@ -104,7 +104,15 @@ function doGet(request, response) {
                         } else {
                             // console.log(results);
                             response.setHeader('Content-Type', 'application/json');
-                            response.end(JSON.stringify(results));
+                            response.end(JSON.stringify({
+                                meta: { 
+                                    'total':        totalCnt,
+                                    'perPage':      perPage,
+                                    'currentPage':  pageNumber,
+                                    'lastPage':     lastPage,
+                                 },
+                                data: results,
+                            }));
                         }
                     });
             }

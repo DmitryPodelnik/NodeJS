@@ -624,7 +624,8 @@ function viewDownload(request, response) {
             pass_salt  VARCHAR(40)  NOT NULL,
             pass_hash  VARCHAR(40)  NOT NULL,
             email      VARCHAR(64)  NOT NULL,
-            picture    VARCHAR(256)
+            picture    VARCHAR(256),
+            last_login_dt  DATETIME
         ) ENGINE = InnoDB, DEFAULT CHARSET = UTF8;
 
         2. Тестовые записи (пароль 123)

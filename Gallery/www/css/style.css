@@ -28,11 +28,22 @@ body {
     vertical-align: top;
     width: 300px;
 }
+.picture-item .vote .vote-like, 
+.picture-item .vote .vote-dislike {
+    margin-left: 0.5ex;
+}
+
+.picture-item .vote {
+    position: absolute;
+    left: 10px;
+    top: 50px;
+}
 .picture-item p {
     display: inline-block;
 }
 .picture-item img {
     float: left;
+    margin-left: 30px;
     max-width: 150px;
 }
 .tool-buttons {

@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         .then(r => r.text())
                         .then(tpl => {
                             let html = "";
-                            for (let p of j) {
+                            for (let p of j.data) {
                                 html += tpl.replace("{{id}}", p.id_str)
                                     .replace("{{title}}", p.title)
                                     .replace("{{description}}", p.description)
@@ -158,6 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
                                     .replace("{{filename}}", p.filename);
                             }
                             cont.innerHTML = html;
+                            window.galleryWindow.state.pageNumber = j.meta.currentPage;
+                            window.galleryWindow.state.pageNumber = j.meta.lastPage;
                             addToolButtonListeners();
                             document.dispatchEvent(new CustomEvent(
                                 "galleryWindowChange",
@@ -565,10 +567,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function prevPageButtonClick(e) {
     const paginationBlock = e.target.parentNode;
-    let page = paginationBlock.getAttribute('page-number');
+    // let page = paginationBlock.getAttribute('page-number');
+    let page = window.galleryWindow.state.pageNumber;
     if (page > 1) {
         page--;
-        paginationBlock.setAttribute("page-number", page);
+        // paginationBlock.setAttribute("page-number", page);
         // window.currentPageNumber.innerText = page;
         window.galleryWindow.changeState({ pageNumber: page });
     }
@@ -577,10 +580,11 @@ function prevPageButtonClick(e) {
 
 function nextPageButtonClick(e) {
     const paginationBlock = e.target.parentNode;
-    let page = paginationBlock.getAttribute('page-number');
-    if (page < 10) {
+    // let page = paginationBlock.getAttribute('page-number');
+    let page = window.galleryWindow.state.pageNumber;
+    if (page < window.galleryWindow.state.lastPage) {
         page++;
-        paginationBlock.setAttribute("page-number", page);
+        // paginationBlock.setAttribute("page-number", page);
         // window.currentPageNumber.innerText = page;
         window.galleryWindow.changeState({ pageNumber: page });
     }
@@ -592,3 +596,36 @@ function currentPageNumber(e) {
 }
 
 document.addEventListener("galleryWindowChange", currentPageNumber);
+
+// -------- VOTES --------
+function voteHandler(e) {
+    let vote = e.target.classList.contains("vote-dislike")
+                ? -1
+                : 1; 
+    // user_id
+    const userId = findUserId();
+    // picture_id
+    const picture_id = e.target.closest("[picId]").getAttribute("picId");
+    // console.log(userId, pictureId, vote);
+    fetch("/api/votes", {
+        method: "post",
+        headers: {
+
+            'Content-Type': 'text/plain'
+        },
+        body: JSON.stringify({
+            "users_id": userId,
+            "picture_id": pictureId,
+            "vote": vote,
+        })
+    })
+    .then(r => r.text())
+    .then(console.log);
+}
+function setVotesHandlers() {
+    for (let v of document.querySelectorAll('.vote-like, .vote-dislike')) {
+        // element.addEventListener(like)
+        v.onclick = voteHandler;
+    }
+}
+document.addEventListener('galleryWindowChange', setVotesHandlers);
