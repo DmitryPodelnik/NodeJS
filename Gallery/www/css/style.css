@@ -33,6 +33,10 @@ body {
     margin-left: 0.5ex;
 }
 
+.picture-item .vote, .vote-total {
+    text-align: center;
+}
+
 .picture-item .vote {
     position: absolute;
     left: 10px;
