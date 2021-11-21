@@ -27,30 +27,7 @@ document.addEventListener("submit", (e) => {
         formData.append("place", place.value);
     }
     formData.append("picture", picture.files[0]);
-
     formData.append("users_id", findUserId());
-
-
-    // Exercise: 
-    // Обеспечить передачу параметров в формате JSON
-    // (данные формы преобр. в JSON и передаются запросом PUT)
-    /*
-        const formDataJson = new FormData();
-        formDataJson.append("title", JSON.stringify(title.value));
-        formDataJson.append("description", JSON.stringify(descr.value));
-        // place optional, include if not empty
-        if (place.value.length > 0) {
-            formDataJson.append("place", JSON.stringify(place.value));
-        }
-        formDataJson.append("picture", JSON.stringify(picture.files[0]));
-    
-        fetch("/api/picture", {
-            method: "PUT",
-            body: formData
-        })
-        .then(res => res.json())
-        .then(console.log);
-    */
 
     findUserId();
 
@@ -61,38 +38,6 @@ document.addEventListener("submit", (e) => {
         .then(res => res.json())
         .then(res => {
             console.log(res);
-
-            /*
-            let galleryElement = document.querySelector("#gallery");
-    
-            let imgElement = document.createElement("img");
-            imgElement.src = res.params.savedPictureUrl; 
-            imgElement.onload = function() {
-                if (this.width + this.height == 0) {
-                       this.onerror();
-                       return;
-                }
-    
-                let descriptionElem = document.createElement("p");
-                descriptionElem.innerText = "Description: " + descr.value;
-                galleryElement.append(descriptionElem);
-    
-                if (place) {
-                    let placeElem = document.createElement("p");
-                    placeElem.innerText = "Place: " + place.value;
-                    galleryElement.append(placeElem);
-                }
-    
-                let form = document.querySelector(".add-image-form");
-                form.reset();
-           }
-    
-           imgElement.onerror = function() {
-                alert("Image display error!"); 
-           }
-    
-           galleryElement.append(imgElement);
-           */
         });
 
 });
@@ -136,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {  // all
                 
             }
-
+            console.log(url);
             fetch(url)
                 .then(r => r.text())
                 .then(t => {
@@ -353,7 +298,7 @@ function tbEditClick(e) {
 }
 
 document.addEventListener('keydown', (e) => {
-    if (event.code == 'Escape') {
+    if (e.code == 'Escape') {
         const div = document.querySelector('#gallery-container');
         let saveBtns = div.querySelectorAll('.tb-save');
         for (let prop of saveBtns) {

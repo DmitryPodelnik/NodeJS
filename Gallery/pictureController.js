@@ -128,64 +128,6 @@ function doGet(request, response) {
             }
         }
     );
-
-    // request.services.dbPool.execute("SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p WHERE p.delete_DT IS NULL", (err, results) => {
-    //    if (err) {
-    //       console.log(err);
-    //       response.errorHandlers.send500(response);
-    //    } else {
-    //        console.log(results);
-    // вариант 1
-    /*
-    let res = `<div style="display: flex; flex-direction: row; 
-                           flex-wrap: wrap; 
-                           justify-content: space-between;" 
-                    >`;
-    for (let pic of results) {
-        let tempStr = `
-                        <div>
-                            <img style="max-width: 100px" src="/pictures/{{filename}}" />
-                            <h5>Title: {{title}}</h5>
-                            <p>Description: {{description}}</p>
-                            <p>Place: {{place}}</p>
-                        </div>`;
-
-        tempStr = tempStr.replace("{{filename}}", pic.filename);
-        tempStr = tempStr.replace("{{title}}", pic.title);
-        tempStr = tempStr.replace("{{description}}", pic.description);
-        if (pic.place) {
-            tempStr = tempStr.replace("{{place}}", pic.place);
-        } else {
-            tempStr = tempStr.replace("{{place}}", "Place: ");
-        }
-        res += tempStr;
-    }
-    res += '</div>';
-
-    response.end(res);
-    */
-
-    // вариант 2
-    /*
-    let res = {
-        "template": `
-                <div style="background-color: moccasin">
-                   <img style="max-width: 100px" src="/pictures/{{filename}}" />
-                   <h5>Title: {{title}}</h5>
-                   <p>Description: {{description}}</p>
-                   <p>Place: {{place}}</p>
-                </div>`,
-        "results": results,
-    };
-    response.setHeader('Content-Type', 'application/json');
-    response.end(JSON.stringify(res));
-
-    //response.setHeader('Content-Type', 'application/json');
-    //response.end(JSON.stringify(results));
-    */
-    // }
-    //});
-
 };
 
 function doPost(request, response) {
@@ -201,8 +143,6 @@ function doPost(request, response) {
             // OK
             const savedName = moveUploadedFile(files.picture)
             if (savedName !== "uploadError") {
-                // res.params.savedPictureUrl = "/pictures/" + savedName;  
-
                 addPicture({
                     title: fields.title,
                     description: fields.description,
@@ -407,8 +347,8 @@ function validatePictureForm(fields, files) {
 }
 
 function moveUploadedFile(file) {
-    var counter = 1;
-    var savedName;
+    let counter = 1;
+    let savedName;
     do {
         // TODO: trim filename to 64 symbols
         savedName = `(${counter++})_${file.name}`;
