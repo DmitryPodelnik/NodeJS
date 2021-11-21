@@ -116,70 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
     window.galleryWindow.changeState({ pageNumber: 1, userMode: 0 });
-
-    // вариант 1
-    // const cont = document.querySelector("#gallery-container");
-    // cont.innerHTML = t;
-
-    // вариант 2 !!!
-    /*
-    let res = `<div style="display: flex; flex-direction: row; 
-                           flex-wrap: wrap; 
-                           justify-content: space-between;
-                           background-color: moccasin;" 
-                    >`;
-    for (let pic of j.results) {
-        let tempStr = j.template;
-        tempStr = tempStr.replace("{{filename}}", pic.filename);
-        tempStr = tempStr.replace("{{title}}", pic.title);
-        tempStr = tempStr.replace("{{description}}", pic.description);
-        if (pic.place) {
-            tempStr = tempStr.replace("{{place}}", pic.place);
-        } else {
-            tempStr = tempStr.replace("{{place}}", " ");
-        }
-        res += tempStr;
-    }
-    res += '</div>';
-    cont.innerHTML = res;
-    */
-
-    // вариант 3
-    /*
-    for (let p of j) {
-        
-        const div = document.createElement("div");
-        div.style.border = "1px solid black";
-        div.style.display = "inline-block";
- 
-        const img = document.createElement("img");
-        img.src="/pictures/" + p.filename;
-        img.style["max-width"] = "150px";
- 
-        const title = document.createElement("p");
-        title.innerText = "Title: " + p.title;
- 
-        const descr = document.createElement("p");
-        descr.innerText = "Description: " + p.description;
- 
-        const place = document.createElement("p");
- 
-        div.appendChild(img);
-        div.appendChild(title);
-        div.appendChild(descr);
- 
-        if (p.place) {
-            place.innerText = "Place: " + p.place;
-        } else {
-            place.innerText = "Place: ";
-        }
- 
-        div.appendChild(place);
-        cont.appendChild(div);
-        
-        cont.innerHTML += tpl.replace("{{filename}}", p.filename);
-    }
-    */
 });
 
 async function addToolButtonListeners() {
@@ -451,49 +387,48 @@ async function loadAuthContainer() {
         });
 }
 
-function loadPictures(filter) {
-    let url = "/api/picture";
-    if (typeof filter != "undefined" &&
-        typeof filter["userMode"] != "undefined") {
-        if (filter["userMode"] == 1) {
-            url += "?userid=" + findUserId();
-        }
-        else if (filter["userMode"] == 2) {  // not own
-            url += "?exceptid=" + findUserId();
-        } else {  // all
+// function loadPictures(filter) {
+//     let url = "/api/picture";
+//     if (typeof filter != "undefined" &&
+//         typeof filter["userMode"] != "undefined") {
+//         if (filter["userMode"] == 1) {
+//             url += "?userid=" + findUserId();
+//         }
+//         else if (filter["userMode"] == 2) {  // not own
+//             url += "?exceptid=" + findUserId();
+//         } else {  // all
 
-        }
-    }
+//         }
+//     }
 
-    fetch(url)
-        .then(r => r.text())
-        .then(t => {
-            // console.log(t);
-            const j = JSON.parse(t); // или .then(r => r.json())
-            const cont = document.querySelector("#gallery-container");
+//     fetch(url)
+//         .then(r => r.text())
+//         .then(t => {
+//             // console.log(t);
+//             const j = JSON.parse(t); // или .then(r => r.json())
+//             const cont = document.querySelector("#gallery-container");
 
-            // вариант 4
+//             // вариант 4
 
-            fetch("/templates/picture.tpl")
-                .then(r => r.text())
-                .then(tpl => {
-                    let html = "";
-                    for (let p of j) {
-                        html += tpl.replace("{{id}}", p.id_str)
-                            .replace("{{title}}", p.title)
-                            .replace("{{description}}", p.description)
-                            .replace("{{place}}", p.place)
-                            .replace("{{filename}}", p.filename);
-                    }
-                    cont.innerHTML = html;
-                    addToolButtonListeners();
-                });
-        });
-}
+//             fetch("/templates/picture.tpl")
+//                 .then(r => r.text())
+//                 .then(tpl => {
+//                     let html = "";
+//                     for (let p of j) {
+//                         html += tpl.replace("{{id}}", p.id_str)
+//                             .replace("{{title}}", p.title)
+//                             .replace("{{description}}", p.description)
+//                             .replace("{{place}}", p.place)
+//                             .replace("{{filename}}", p.filename);
+//                     }
+//                     cont.innerHTML = html;
+//                     addToolButtonListeners();
+//                 });
+//         });
+// }
 
 function filterShownChange(e) {
-    // console.log(e.target.value);
-    loadPictures({ userMode: e.target.value });
+    window.galleryWindow.changeState({ userMode: e.target.value });
 }
 
 // ---------- PAGINATION ----------

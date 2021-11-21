@@ -48,7 +48,6 @@ function doPost(request, response) {
                     console.log(err);
                     response.errorHandlers.send500(err);
                 });
-            // response.end(`POST Votes works !! user_id = ${body.users_id}, picture_id = ${body.picture_id}, vote = ${body.vote}`);
         });
 }
 
