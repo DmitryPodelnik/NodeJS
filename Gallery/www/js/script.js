@@ -387,46 +387,6 @@ async function loadAuthContainer() {
         });
 }
 
-// function loadPictures(filter) {
-//     let url = "/api/picture";
-//     if (typeof filter != "undefined" &&
-//         typeof filter["userMode"] != "undefined") {
-//         if (filter["userMode"] == 1) {
-//             url += "?userid=" + findUserId();
-//         }
-//         else if (filter["userMode"] == 2) {  // not own
-//             url += "?exceptid=" + findUserId();
-//         } else {  // all
-
-//         }
-//     }
-
-//     fetch(url)
-//         .then(r => r.text())
-//         .then(t => {
-//             // console.log(t);
-//             const j = JSON.parse(t); // или .then(r => r.json())
-//             const cont = document.querySelector("#gallery-container");
-
-//             // вариант 4
-
-//             fetch("/templates/picture.tpl")
-//                 .then(r => r.text())
-//                 .then(tpl => {
-//                     let html = "";
-//                     for (let p of j) {
-//                         html += tpl.replace("{{id}}", p.id_str)
-//                             .replace("{{title}}", p.title)
-//                             .replace("{{description}}", p.description)
-//                             .replace("{{place}}", p.place)
-//                             .replace("{{filename}}", p.filename);
-//                     }
-//                     cont.innerHTML = html;
-//                     addToolButtonListeners();
-//                 });
-//         });
-// }
-
 function filterShownChange(e) {
     window.galleryWindow.changeState({ userMode: e.target.value });
 }
@@ -448,28 +408,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function prevPageButtonClick(e) {
     const paginationBlock = e.target.parentNode;
-    // let page = paginationBlock.getAttribute('page-number');
     let page = window.galleryWindow.state.pageNumber;
     if (page > 1) {
         page--;
-        // paginationBlock.setAttribute("page-number", page);
-        // window.currentPageNumber.innerText = page;
         window.galleryWindow.changeState({ pageNumber: page });
     }
-    // console.log(page);
 }
 
 function nextPageButtonClick(e) {
     const paginationBlock = e.target.parentNode;
-    // let page = paginationBlock.getAttribute('page-number');
     let page = window.galleryWindow.state.pageNumber;
     if (page < window.galleryWindow.state.lastPage) {
         page++;
-        // paginationBlock.setAttribute("page-number", page);
-        // window.currentPageNumber.innerText = page;
         window.galleryWindow.changeState({ pageNumber: page });
     }
-    // console.log(page);
 }
 
 function currentPageNumber(e) {

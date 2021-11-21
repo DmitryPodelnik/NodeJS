@@ -103,8 +103,8 @@ function doGet(request, response) {
                     GROUP BY pictire_id
                     ) v
                   ON p.id = v.pictire_id ` + conditions + limits;
-                    
-                  request.services.dbPool.query(
+
+                request.services.dbPool.query(
                     picQuery,
                     queryParams,
                     (err, results) => {
@@ -115,12 +115,12 @@ function doGet(request, response) {
                             // console.log(results);
                             response.setHeader('Content-Type', 'application/json');
                             response.end(JSON.stringify({
-                                meta: { 
-                                    'total':        totalCnt,
-                                    'perPage':      perPage,
-                                    'currentPage':  pageNumber,
-                                    'lastPage':     lastPage,
-                                 },
+                                meta: {
+                                    'total': totalCnt,
+                                    'perPage': perPage,
+                                    'currentPage': pageNumber,
+                                    'lastPage': lastPage,
+                                },
                                 data: results,
                             }));
                         }
@@ -138,6 +138,7 @@ function doPost(request, response) {
             response.errorHandlers.send500(response);
             return;
         }
+
         let validateRes = validatePictureForm(fields, files);
         if (validateRes === true) {
             // OK
@@ -312,7 +313,9 @@ function addPicture(pic, services) {
 
 function validatePictureForm(fields, files) {
     // задание: проверить поля на наличие и допустимость
-
+    if (typeof files["picture"] == 'undefined') {
+        return "File required";
+    }
     // title should be
     if (typeof fields["title"] == 'undefined') {
         return "Title required";
@@ -320,29 +323,22 @@ function validatePictureForm(fields, files) {
     if (fields["title"].length == 0) {
         return "Title should be non-empty";
     }
-    // description should be 
+    // description should be
     if (typeof fields["description"] == 'undefined') {
         return "Description required";
     }
     if (fields["description"].length == 0) {
         return "Description should be non-empty";
     }
-
     // place optional. But if present then should be non-empty
     if (typeof fields["place"] != 'undefined'
         && fields["place"].length == 0) {
         return "Place should be non-empty";
     }
-
-    if (typeof fields["picture"] == 'undefined') {
-        return "File required";
-    }
-
     // users_id optional:
     if (typeof fields["users_id"] == 'undefined') {
         fields["users_id"] = null;
     }
-
     return true;
 }
 
