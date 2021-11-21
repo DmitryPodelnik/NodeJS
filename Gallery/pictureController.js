@@ -62,9 +62,9 @@ function doGet(request, response) {
     let queryParams = [];
 
     if (typeof request.params.query.deleted == 'undefined') {
-        conditions += " p.delete_DT IS NULL";
+        conditions += "p.delete_DT IS NULL";
     } else {
-        conditions += " p.delete_DT IS NOT NULL";
+        conditions += "p.delete_DT IS NOT NULL";
     }
 
     if (typeof request.params.query.userid != 'undefined') {  // own pictures
@@ -77,11 +77,12 @@ function doGet(request, response) {
     }
     // По собранным условиям определяем кол-во записей
     const cntQuery = "SELECT COUNT(*) AS cnt FROM pictures p " + conditions;
-    request.services.dbPool.execute(
+    request.services.dbPool.query(
         cntQuery,
         queryParams,
         (err, results) => {
             if (err) {
+                console.log(cntQuery);
                 console.log(err);
                 response.errorHandlers.send500();
             } else {
@@ -94,7 +95,7 @@ function doGet(request, response) {
 
                 // const picQuery = "SELECT p.*, CAST(p.id AS CHAR) id_str FROM pictures p " + conditions + limits;
                 const picQuery = `
-                SELECT p.id, CAST(p.id AS CHAR) id_str, COALESCE(v.rating, 0) rating, COALESCE(v.vote, 0) votes
+                SELECT p.*, CAST(p.id AS CHAR) id_str, COALESCE(v.rating, 0) rating, COALESCE(v.votes, 0) votes
                 FROM pictures p
                 LEFT JOIN (
                     SELECT picture_id, SUM(vote) rating, COUNT(id) votes
@@ -103,8 +104,8 @@ function doGet(request, response) {
                     ) v
                   ON p.id = v.picture_id ` + conditions + limits;
                     
-                request.services.dbPool.execute(
-                    picQuery + conditions + limits,
+                  request.services.dbPool.query(
+                    picQuery,
                     queryParams,
                     (err, results) => {
                         if (err) {
