@@ -385,9 +385,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!prevPageButton) {
         throw "Pagination: prevPageButton not found";
     }
+   
+    if (window.galleryWindow.state.pageNumber == 1) {
+        prevPageButton.setAttribute('disabled', true);
+    }
+
     const nextPageButton = document.getElementById('nextPageButton');
     if (!nextPageButton) {
         throw "Pagination: nextPageButton not found";
+    }
+    if (window.galleryWindow.state.pageNumber == window.galleryWindow.state.lastPage) {
+        nextPageButton.setAttribute('disabled', true);
     }
 
     prevPageButton.addEventListener('click', prevPageButtonClick);
@@ -401,6 +409,22 @@ function prevPageButtonClick(e) {
         page--;
         window.galleryWindow.changeState({ pageNumber: page });
     }
+
+    const nextPageButton = document.getElementById('nextPageButton');
+    if (!nextPageButton) {
+        throw "Pagination: nextPageButton not found";
+    }
+    if (window.galleryWindow.state.pageNumber != 1) {
+        nextPageButton.removeAttribute('disabled');
+    }
+
+    const prevPageButton = document.getElementById('prevPageButton');
+    if (!prevPageButton) {
+        throw "Pagination: prevPageButton not found";
+    }
+    if (window.galleryWindow.state.pageNumber == 1) {
+        prevPageButton.setAttribute('disabled', true);
+    }
 }
 
 function nextPageButtonClick(e) {
@@ -410,6 +434,23 @@ function nextPageButtonClick(e) {
         page++;
         window.galleryWindow.changeState({ pageNumber: page });
     }
+
+    const prevPageButton = document.getElementById('prevPageButton');
+    if (!prevPageButton) {
+        throw "Pagination: prevPageButton not found";
+    }
+    if (window.galleryWindow.state.pageNumber != 1) {
+        prevPageButton.removeAttribute('disabled');
+    }
+
+    const nextPageButton = document.getElementById('nextPageButton');
+    if (!nextPageButton) {
+        throw "Pagination: nextPageButton not found";
+    }
+    if (window.galleryWindow.state.pageNumber == window.galleryWindow.state.lastPage) {
+        nextPageButton.setAttribute('disabled', true);
+    }
+
 }
 
 function currentPageNumberListener(e) {
