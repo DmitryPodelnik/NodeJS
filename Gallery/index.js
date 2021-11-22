@@ -149,7 +149,7 @@ async function analyze(request, response) {
     // первая часть (до ?) - сам запрос
     const requestUrl = requestParts[0];
     // вторая часть - параметры по схеме key1=val1 & key2=val2
-    var params = {};
+    let params = {};
     if (requestParts.length > 1         // есть вторая часть
         && requestParts[1].length > 0) {  // и она не пустая
         for (let keyval of requestParts[1].split("&")) {

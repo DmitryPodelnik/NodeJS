@@ -50,10 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             const state = window.galleryWindow.state;
 
-            if (typeof s["pageNumber"] != "undefined") {
+            if (typeof s["pageNumber"] != 'undefined') {
                 state.pageNumber = s["pageNumber"];
             }
-            if (typeof s["userMode"] != "undefined" && s["userMode"] != state.userMode) {
+
+            if (typeof s["userMode"] != 'undefined' && s["userMode"] != state.userMode) {
                 state.userMode = s["userMode"];
                 state.pageNumber = 1;
             }
@@ -67,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {  // all
 
             }
-            console.log(url);
+
             fetch(url)
                 .then(r => r.text())
                 .then(t => {
@@ -91,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             }
                             cont.innerHTML = html;
                             window.galleryWindow.state.pageNumber = j.meta.currentPage;
-                            window.galleryWindow.state.pageNumber = j.meta.lastPage;
+                            window.galleryWindow.state.lastPage = j.meta.lastPage;
                             addToolButtonListeners();
                             document.dispatchEvent(new CustomEvent(
                                 "galleryWindowChange",
@@ -277,6 +278,7 @@ function setCookie(name, value, options = {}) {
 
     for (let optionKey in options) {
         updatedCookie += "; " + optionKey;
+
         let optionValue = options[optionKey];
         if (optionValue !== true) {
             updatedCookie += "=" + optionValue;

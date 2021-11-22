@@ -7,4 +7,5 @@
             <option value="0">All</option>
             <option value="1">Own</option>
             <option value="2">Except own</option>
+        </select>    
     </div>
