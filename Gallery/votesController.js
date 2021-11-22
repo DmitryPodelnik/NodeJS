@@ -84,7 +84,7 @@ function addVote(body) {
     return new Promise((resolve, reject) => {
         global.services.dbPool.execute(
             sql,
-            params, 
+            params,
             (err, results) => {
                 if (err) {
                     reject(err);
@@ -92,6 +92,6 @@ function addVote(body) {
                     resolve(results);
                 }
             })
-        
+
     });
 }

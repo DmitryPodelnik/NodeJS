@@ -76,7 +76,7 @@ function doGet(request, response) {
                     let userId = results[0].id_str;
                     updateUserAuthData(userId);
                     response.setHeader('Set-Cookie', `session-id=${userId};max-age=1000;path=/`);
-                    response.end (userId) ;
+                    response.end(userId);
                     return;
                 }
             }

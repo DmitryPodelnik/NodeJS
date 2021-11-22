@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!prevPageButton) {
         throw "Pagination: prevPageButton not found";
     }
-   
+
     if (window.galleryWindow.state.pageNumber == 1) {
         prevPageButton.setAttribute('disabled', true);
     }
@@ -460,10 +460,10 @@ function buttonSwitcher() {
 
     if (window.galleryWindow.state.pageNumber == window.galleryWindow.state.lastPage) {
         window.nextPageButton.setAttribute("disabled", true);
-    } 
+    }
     else {
         window.nextPageButton.removeAttribute("disabled");
-    } 
+    }
 }
 
 document.addEventListener('galleryWindowChange', setVotesHandlers);

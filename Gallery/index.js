@@ -2,9 +2,9 @@
 const HTTP_PORT = 80;
 const WWW_ROOT = "www";
 const FILE_404 = WWW_ROOT + "/404.html";
-const INDEX_HTML           = WWW_ROOT + "/index.html";
-const DEFAULT_MIME         = "application/octet-stream";
-const UPLOAD_PATH          = WWW_ROOT + "/pictures/";
+const INDEX_HTML = WWW_ROOT + "/index.html";
+const DEFAULT_MIME = "application/octet-stream";
+const UPLOAD_PATH = WWW_ROOT + "/pictures/";
 const MAX_SESSION_INTERVAL = 1000000;  // milliseconds
 
 // Подключение модулей
@@ -23,9 +23,9 @@ const connectionData = {
     charset: 'utf8'         // кодировка канала подключения
 };
 
-const services = { dbPool: mysql2.createPool( connectionData ) } ;
-const sessions = {} ;
-global.session = null ;
+const services = { dbPool: mysql2.createPool(connectionData) };
+const sessions = {};
+global.session = null;
 
 // Session cleaner 
 setInterval(() => {
@@ -54,8 +54,8 @@ http.ServerResponse.prototype.send418 = async function () {
 function serverFunction(request, response) {
     services.dbPool = mysql2.createPool(connectionData);
 
-    request.services = services ;
-    global.services  = services ;
+    request.services = services;
+    global.services = services;
 
     response.errorHandlers = {
         "send412": message => {
@@ -99,7 +99,7 @@ function extractCookie(request) {
 }
 
 async function startSession(request) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         if (typeof request.params.cookie['session-id'] != 'undefined') { // request содержит session id
             const sessionId = request.params.cookie['session-id'];
             if (typeof sessions[sessionId] == 'undefined') {  // start of new session
@@ -234,8 +234,8 @@ async function analyze(request, response) {
 
                 let template = data.toString();
                 template = template.replace('{{login}}', global.session.user.login)
-                                   .replace('{{email}}', global.session.user.email)
-                                   .replace('{{id_str}}', global.session.user.id_str);
+                    .replace('{{email}}', global.session.user.email)
+                    .replace('{{id_str}}', global.session.user.id_str);
                 if (!global.session.user.picture) {
                     template = template.replace('{{image-source}}', '../images/anonim.jpg');
                 } else {
