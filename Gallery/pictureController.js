@@ -8,19 +8,6 @@ const INDEX_HTML = WWW_ROOT + "/index.html";
 const DEFAULT_MIME = "application/octet-stream";
 const UPLOAD_PATH = WWW_ROOT + "/pictures/";
 
-const services = { dbPool: null };
-
-const mysql2 = require("mysql2");       // Обновленные средства для MySQL 
-
-const connectionData = {
-    host: 'localhost',      // размещение БД (возможно IP или hostname)
-    port: 3306,             // порт
-    user: 'gallery_user',   // логин пользователя (to 'gallery_user'@'localhost')
-    password: 'gallery_pass',   // пароль (identified by 'gallery_pass')
-    database: 'gallery',    // schema/db (create database gallery;)
-    charset: 'utf8'         // кодировка канала подключения
-};
-
 module.exports = {
     analyze: function (request, response) {
         // CORS
@@ -69,8 +56,6 @@ function doGet(request, response) {
     // Работа с пагинацией проходит в два этапа:
     // 1. Определяем количество записей и емкость страницы (в данном случае - 4)
     // 2. Формируем запрос на выборку
-    services.dbPool = mysql2.createPool(connectionData);
-
     // Учет всех условий должен быть на 1-м этапе, так как от него зависит общее количество
     let conditions = "WHERE ";
     let queryParams = [];
@@ -91,7 +76,7 @@ function doGet(request, response) {
     }
     // По собранным условиям определяем кол-во записей
     const cntQuery = "SELECT COUNT(*) AS cnt FROM pictures p " + conditions;
-    services.dbPool.query(
+    request.services.dbPool.query(
         cntQuery,
         queryParams,
         (err, results) => {
@@ -291,6 +276,7 @@ function validateOrm(body) {
     });
 }
 
+
 function validateId(body) {
     return new Promise((resolve, reject) => {
         // validation: id must exist
@@ -304,25 +290,20 @@ function validateId(body) {
 }
 
 function addPicture(pic, services) {
-    const query = 'INSERT INTO pictures (title, description, place, filename, users_id) VALUES (?, ?, ?, ?, ?)';
+    const query = "INSERT INTO pictures(title, description, place, filename, users_id) VALUES (?, ?, ?, ?, ?)";
     const params = [
         pic.title,
         pic.description,
         pic.place,
         pic.filename,
-        pic.users_id,
+        pic.users_id
     ];
     return new Promise((resolve, reject) => {
-        services.dbPool.execute(query, params, (err, results) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(results);
-            }
+        services.dbPool.query(query, params, (err, results) => {
+            if (err) reject(err);
+            else resolve(results);
         });
     });
-
-
 }
 
 function validatePictureForm(fields, files) {
@@ -355,7 +336,6 @@ function validatePictureForm(fields, files) {
     }
     return true;
 }
-
 function moveUploadedFile(file) {
     let counter = 1;
     let savedName;

@@ -1,44 +1,30 @@
 document.addEventListener("submit", (e) => {
     e.preventDefault();
     const form = e.target;
+
     const title = form.querySelector("input[name=title]");
-    if (!title) {
-        throw "Data transfer error: input[name=title] not found";
-    }
+    if (!title) throw "Data transfer error: input[name=title] not found";
+
     const descr = form.querySelector("input[name=description]");
-    if (!descr) {
-        throw "Data transfer error: input[name=description] not found";
-    }
+    if (!descr) throw "Data transfer error: input[name=description] not found";
     const place = form.querySelector("input[name=place]");
-    if (!place) {
-        throw "Data transfer error: input[name=place] not found";
-    }
+    if (!place) throw "Data transfer error: input[name=place] not found";
     const picture = form.querySelector("input[name=picture]");
-    if (!picture) {
-        throw "Data transfer error: input[name=picture] not found";
-    }
+    if (!picture) throw "Data transfer error: input[name=picture] not found";
     // TODO: data validation
 
     const formData = new FormData();
     formData.append("title", title.value);
     formData.append("description", descr.value);
     // place optional, include if not empty
-    if (place.value.length > 0) {
+    if (place.value.length > 0)
         formData.append("place", place.value);
-    }
     formData.append("picture", picture.files[0]);
     formData.append("users_id", findUserId());
-
-    findUserId();
-
     fetch("/api/picture", {
         method: "POST",
         body: formData  // new URLSearchParams(formData).toString()
-    })
-        .then(res => res.json())
-        .then(res => {
-            console.log(res);
-        });
+    }).then(r => r.text()).then(console.log);
 
 });
 
@@ -72,14 +58,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 state.pageNumber = 1;
             }
 
-            let url = "/api/picture?page=" + state.pageNumber; 
+            let url = "/api/picture?page=" + state.pageNumber;
             if (state.userMode == 1) {
                 url += "&userid=" + findUserId();
             }
             else if (state.userMode == 2) {  // not own
                 url += "&exceptid=" + findUserId();
             } else {  // all
-                
+
             }
             console.log(url);
             fetch(url)
@@ -433,8 +419,8 @@ document.addEventListener("galleryWindowChange", currentPageNumberListener);
 // -------- VOTES --------
 function voteHandler(e) {
     let vote = e.target.classList.contains("vote-dislike")
-                ? -1
-                : 1; 
+        ? -1
+        : 1;
     // user_id
     const userId = findUserId();
     // picture_id
@@ -452,8 +438,8 @@ function voteHandler(e) {
             "vote": vote,
         })
     })
-    .then(r => r.text())
-    .then(console.log);
+        .then(r => r.text())
+        .then(console.log);
 }
 function setVotesHandlers() {
     for (let v of document.querySelectorAll('.vote-like, .vote-dislike')) {
