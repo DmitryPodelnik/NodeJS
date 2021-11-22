@@ -8,6 +8,19 @@ const INDEX_HTML = WWW_ROOT + "/index.html";
 const DEFAULT_MIME = "application/octet-stream";
 const UPLOAD_PATH = WWW_ROOT + "/pictures/";
 
+const services = { dbPool: null };
+
+const mysql2 = require("mysql2");       // Обновленные средства для MySQL 
+
+const connectionData = {
+    host: 'localhost',      // размещение БД (возможно IP или hostname)
+    port: 3306,             // порт
+    user: 'gallery_user',   // логин пользователя (to 'gallery_user'@'localhost')
+    password: 'gallery_pass',   // пароль (identified by 'gallery_pass')
+    database: 'gallery',    // schema/db (create database gallery;)
+    charset: 'utf8'         // кодировка канала подключения
+};
+
 module.exports = {
     analyze: function (request, response) {
         // CORS
@@ -56,6 +69,7 @@ function doGet(request, response) {
     // Работа с пагинацией проходит в два этапа:
     // 1. Определяем количество записей и емкость страницы (в данном случае - 4)
     // 2. Формируем запрос на выборку
+    services.dbPool = mysql2.createPool(connectionData);
 
     // Учет всех условий должен быть на 1-м этапе, так как от него зависит общее количество
     let conditions = "WHERE ";
@@ -77,7 +91,7 @@ function doGet(request, response) {
     }
     // По собранным условиям определяем кол-во записей
     const cntQuery = "SELECT COUNT(*) AS cnt FROM pictures p " + conditions;
-    request.services.dbPool.query(
+    services.dbPool.query(
         cntQuery,
         queryParams,
         (err, results) => {

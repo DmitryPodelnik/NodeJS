@@ -8,8 +8,8 @@
 </head>
 <body>
     <h1>Events</h1>
-    <button id="btn" onclick="document.dispatchEvent(new Event('btnPress'))">Raise event</button>
-    <button id="btn" onclick="document.dispatchEvent(new CustomEvent('btnPress', {detail: {'txt': 'Hello'}}))">Raise event</button>
+    <button onclick="document.dispatchEvent(new Event('btnPress'))">Raise event</button>
+    <button onclick="document.dispatchEvent(new CustomEvent('btnPress', {detail: {'txt': 'Hello'}}))">Raise event</button>
     <p id="par"></p>
     <p id="par2"></p>
     <script>

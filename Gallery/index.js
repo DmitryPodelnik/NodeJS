@@ -23,9 +23,9 @@ const connectionData = {
     charset: 'utf8'         // кодировка канала подключения
 };
 
-const services = { dbPool: null };
-const sessions = {};
-global.session = null;
+const services = { dbPool: mysql2.createPool( connectionData ) } ;
+const sessions = {} ;
+global.session = null ;
 
 // Session cleaner 
 setInterval(() => {
@@ -54,8 +54,8 @@ http.ServerResponse.prototype.send418 = async function () {
 function serverFunction(request, response) {
     services.dbPool = mysql2.createPool(connectionData);
 
-    request.services = services;
-    global.services = services;
+    request.services = services ;
+    global.services  = services ;
 
     response.errorHandlers = {
         "send412": message => {
@@ -71,7 +71,7 @@ function serverFunction(request, response) {
     };
 
     response.on("close", () => {
-        services.dbPool.end();
+        // services.dbPool.end();
     });
     request.params = {
         body: "",

@@ -424,11 +424,11 @@ function nextPageButtonClick(e) {
     }
 }
 
-function currentPageNumber(e) {
+function currentPageNumberListener(e) {
     window.currentPageNumber.innerText = e.detail.pageNumber;
 }
 
-document.addEventListener("galleryWindowChange", currentPageNumber);
+document.addEventListener("galleryWindowChange", currentPageNumberListener);
 
 // -------- VOTES --------
 function voteHandler(e) {
@@ -438,17 +438,17 @@ function voteHandler(e) {
     // user_id
     const userId = findUserId();
     // picture_id
-    const picture_id = e.target.closest("[picId]").getAttribute("picId");
+    const pictire_id = e.target.closest("[picId]").getAttribute("picId");
     // console.log(userId, pictureId, vote);
+
     fetch("/api/votes", {
         method: "post",
         headers: {
-
-            'Content-Type': 'text/plain'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             "users_id": userId,
-            "picture_id": pictureId,
+            "pictire_id": pictire_id,
             "vote": vote,
         })
     })

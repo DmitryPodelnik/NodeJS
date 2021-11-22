@@ -8,11 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // вариант 4
 
+            console.log(j);
+
             fetch("/templates/picture_junk.tpl")
                 .then(r => r.text())
                 .then(tpl => {
                     let html = "";
-                    for (let p of j) {
+                    for (let p of j.data) {
                         html += tpl.replace("{{id}}", p.id_str)
                             .replace("{{title}}", p.title)
                             .replace("{{description}}", p.description)
