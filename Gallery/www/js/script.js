@@ -93,6 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             cont.innerHTML = html;
                             window.galleryWindow.state.pageNumber = j.meta.currentPage;
                             window.galleryWindow.state.lastPage = j.meta.lastPage;
+
+                            let lastPageNumber = document.getElementById('lastPageNumber');
+                            lastPageNumber.innerText = window.galleryWindow.state.lastPage;
+                            
                             addToolButtonListeners();
                             document.dispatchEvent(new CustomEvent(
                                 "galleryWindowChange",
