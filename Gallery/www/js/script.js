@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                                     if (!removePic) {
                                                         throw "Data transfer error: removePic not found";
                                                     }
-                                                    removePic.innerText = '   [X]';
+                                                    removePic.innerText = ' [X]';
                                                     removePic.style.cursor = 'pointer';
                                                     removePic.onclick = () => {
                                                         removeComment(item.id);
@@ -142,18 +142,18 @@ document.addEventListener("DOMContentLoaded", () => {
                                                     if (!editPic) {
                                                         throw "Data transfer error: editPic not found";
                                                     }
-                                                    editPic.innerText = '   [Edit]';
+                                                    editPic.innerText = ' [Edit]';
                                                     editPic.style.cursor = 'pointer';                                             
                                                     editPic.onclick = () => {
                                                         // editComment(item.id);
                                                         if (typeof comment.commentText !== 'undefined') {
                                                             commentText.removeAttribute('contenteditable');
-                                                            editPic.innerText = '   [Edit]';
+                                                            editPic.innerText = ' [Edit]';
                                                             delete comment.commentText;
                                                         } else {
                                                             comment.commentText = commentText.innerText;
                                                             commentText.setAttribute('contenteditable', 'true');
-                                                            editPic.innerText = '   [Save]';
+                                                            editPic.innerText = ' [Save]';
                                                             commentText.focus();
                                                         }
                                                     };
