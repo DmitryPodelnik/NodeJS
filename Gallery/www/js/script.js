@@ -493,9 +493,16 @@ function voteHandler(e) {
             }
         });
 }
+
 function setVotesHandlers() {
     for (let v of document.querySelectorAll('.vote-like, .vote-dislike')) {
         v.onclick = voteHandler;
+    }
+}
+
+function setCommentHandlers() {
+    for (let v of document.querySelectorAll('.add-comment')) {
+        v.onclick = addComment;
     }
 }
 
@@ -515,5 +522,54 @@ function buttonSwitcher() {
     }
 }
 
+// ---------- COMMENTS ----------
+
+function addComment(e) {
+    e.preventDefault();
+
+    const div = e.target.closest('.picture-item');
+    if (!div) {
+        throw "Data transfer error: .picture-item not found"
+    }
+
+    const picId = div.getAttribute('picId');
+    if (!picId) {
+        throw "Data transfer error: picId not found"
+    }
+
+    const comment = e.target.closest('form').querySelector('.picture-new-comment');
+    if (!comment) {
+        throw "Data transfer error: comment not found"
+    }
+
+    const userId = findUserId();
+    if (!userId) {
+        throw "Data transfer error: userId not found"
+    }
+
+    let data = {};
+    data.picture_id = picId;
+    data.comment = comment.value;
+    data.user_id = userId;
+
+    fetch("/api/comments", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(r => r.text())
+        .then(res => {
+            let data = JSON.parse(res);
+            console.log(res);
+        })
+        .catch(err => {
+            alert(err);
+        })
+
+}
+
+document.addEventListener('galleryWindowChange', setCommentHandlers);
 document.addEventListener('galleryWindowChange', setVotesHandlers);
 document.addEventListener("galleryWindowChange", buttonSwitcher);

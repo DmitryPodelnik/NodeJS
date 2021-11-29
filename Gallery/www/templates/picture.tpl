@@ -13,5 +13,5 @@
         <span class="tb-edit"></span>
         <span class="tb-download"></span>
     </section>
-    <div id="pictures-comments"></div>
+    <div id="picture-comments"></div>
 </div>

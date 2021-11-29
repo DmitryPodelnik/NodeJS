@@ -52,7 +52,7 @@ function doPost(request, response) {
 }
 
 function doPut(request, response) {
-
+    
 }
 
 function doDelete(request, response) {
@@ -79,7 +79,6 @@ function validateOrm(body) {
 function addComment(body) {
     const params = [body.user_id, body.picture_id, body.comment];
     const sql = "INSERT INTO comments (user_id, picture_id, comment) VALUES(?, ?, ?)";
-
 
     return new Promise((resolve, reject) => {
         global.services.dbPool.execute(
