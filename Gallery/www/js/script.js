@@ -121,9 +121,13 @@ document.addEventListener("DOMContentLoaded", () => {
                                                 }
 
                                                 let comment = document.createElement('div');
-                                                comment.append(document.createElement('b').innerText = item.login + ": ");
+                                                let userComment = document.createElement('b');
+                                                userComment.innerText = item.login + ": ";
+                                                comment.append(userComment);
+
                                                 let commentText = document.createElement('p');
                                                 commentText.innerText = item.comment;
+
                                                 comment.append(commentText);
 
                                                 const userId = findUserId();
@@ -145,11 +149,12 @@ document.addEventListener("DOMContentLoaded", () => {
                                                     editPic.innerText = ' [Edit]';
                                                     editPic.style.cursor = 'pointer';                                             
                                                     editPic.onclick = () => {
-                                                        // editComment(item.id);
+                                                        
                                                         if (typeof comment.commentText !== 'undefined') {
                                                             commentText.removeAttribute('contenteditable');
                                                             editPic.innerText = ' [Edit]';
                                                             delete comment.commentText;
+                                                            editComment(item.id, commentText.innerText);
                                                         } else {
                                                             comment.commentText = commentText.innerText;
                                                             commentText.setAttribute('contenteditable', 'true');
@@ -176,15 +181,15 @@ document.addEventListener("DOMContentLoaded", () => {
     window.galleryWindow.changeState({ pageNumber: 1, userMode: 0 });
 });
 
-function editComment(commentId) {
-    fetch(`/api/comments?commentId=${commentId}`, {
+function editComment(commentId, commentText) {
+    fetch(`/api/comments?commentId=${commentId}&commentText=${commentText}`, {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json'
         },
     })
         .then(() => {
-            console.log("edited!");
+            alert("Edited!");
             loadGalleryContainer();
         });
 }

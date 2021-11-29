@@ -59,14 +59,17 @@ function doPost(request, response) {
 }
 
 function doPut(request, response) {
-    
+    editComment(request)
+    .then(res => {
+        response.end(JSON.stringify({
+            "result": res.affectedRows,
+        }));
+    });
 }
 
 function doDelete(request, response) {
     deleteComment(request)
     .then(res => {
-        //console.log(res);
-
         response.end(JSON.stringify({
             "result": res.affectedRows,
         }));
@@ -87,6 +90,26 @@ function validateOrm(body) {
             }
             resolve(body);
         }
+    });
+}
+
+function editComment(request) {
+    const sql = "UPDATE comments SET comment = ? WHERE id = ?"
+
+    return new Promise((resolve, reject) => {
+        global.services.dbPool.execute(
+            sql,
+            [
+                request.params.query.commentText, 
+                request.params.query.commentId, 
+            ],
+            (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            })
     });
 }
 
