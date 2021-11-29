@@ -101,6 +101,34 @@ document.addEventListener("DOMContentLoaded", () => {
                                 "galleryWindowChange",
                                 { detail: window.galleryWindow.state }
                             ));
+                        })
+                        .then(() => {
+                            let picturesCommentDivs = document.querySelectorAll('.picture-item');
+                            if (!picturesCommentDivs) {
+                                throw "Data transfer error: picturesCommentDivs not found";
+                            }
+                            fetch("/api/comments", {
+                                method: "GET",
+                            })
+                                .then(r => r.json())
+                                .then(res => {
+                                    for (let item of res.comments) {
+                                        for (let pic of picturesCommentDivs) {
+                                            if (item.picture_id == pic.getAttribute('picId')) {
+                                                let commentDiv = pic.querySelector('.picture-comments');
+                                                if (!commentDiv) {
+                                                    throw "Data transfer error: commentDiv not found";
+                                                }
+
+                                                let comment = document.createElement('div');
+                                                comment.append(document.createElement('p').innerText = item.comment);
+                                                commentDiv.append(comment);
+                                                console.log(comment);
+
+                                            }
+                                        }
+                                    }
+                                });
                         });
                 });
         }
@@ -529,22 +557,22 @@ function addComment(e) {
 
     const div = e.target.closest('.picture-item');
     if (!div) {
-        throw "Data transfer error: .picture-item not found"
+        throw "Data transfer error: .picture-item not found";
     }
 
     const picId = div.getAttribute('picId');
     if (!picId) {
-        throw "Data transfer error: picId not found"
+        throw "Data transfer error: picId not found";
     }
 
     const comment = e.target.closest('form').querySelector('.picture-new-comment');
     if (!comment) {
-        throw "Data transfer error: comment not found"
+        throw "Data transfer error: comment not found";
     }
 
     const userId = findUserId();
     if (!userId) {
-        throw "Data transfer error: userId not found"
+        throw "Data transfer error: userId not found";
     }
 
     let data = {};
@@ -566,9 +594,40 @@ function addComment(e) {
         })
         .catch(err => {
             alert(err);
-        })
-
+        });
 }
+
+// document.addEventListener("DOMContentLoaded", () => {
+//     let picturesCommentDivs = document.querySelectorAll('.picture-item');
+//     if (!picturesCommentDivs) {
+//         throw "Data transfer error: picturesCommentDivs not found";
+//     }
+//     fetch("/api/comments", {
+//         method: "GET",
+//     })
+//         .then(r => r.json())
+//         .then(r => {
+//         })
+//         .then(res => {
+//             for (let item of res.comments) {
+//                 for (let pic of picturesCommentDivs) {
+//                     if (item.picture_id == pic.getAttribute('picId')) {
+//                         let commentDiv = pic.querySelector('.picture-comments');
+//                         if (!commentDiv) {
+//                             throw "Data transfer error: commentDiv not found";
+//                         }
+
+//                         let comment = document.createElement('div');
+//                         comment.append(document.createElement('p').innerText = item.comment);
+//                         commentDiv.append(comment);
+//                         console.log(comment);
+
+//                     }
+//                 }
+
+//             }
+//         });
+// });
 
 document.addEventListener('galleryWindowChange', setCommentHandlers);
 document.addEventListener('galleryWindowChange', setVotesHandlers);

@@ -13,7 +13,7 @@
         <span class="tb-edit"></span>
         <span class="tb-download"></span>
     </section>
-    <div id="picture-comments"></div>
+    <div class="picture-comments"></div>
     <br />
     <form>
         <label><span>Комментарий: </span><input type="text" name="comment" class="picture-new-comment" /></label>

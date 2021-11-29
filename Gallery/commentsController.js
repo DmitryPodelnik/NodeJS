@@ -27,7 +27,14 @@ module.exports = {
 };
 
 function doGet(request, response) {
-    response.end("Comments works");
+    getComments()
+    .then(res => {
+        console.log(res);
+
+        response.end(JSON.stringify({
+            "comments": res,
+        }));
+    });
 }
 
 function doPost(request, response) {
@@ -91,6 +98,21 @@ function addComment(body) {
                     resolve(results);
                 }
             })
+    });
+}
 
+function getComments() {
+    const sql = "SELECT * FROM comments";
+
+    return new Promise((resolve, reject) => {
+        global.services.dbPool.execute(
+            sql,
+            (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            })
     });
 }
