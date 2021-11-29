@@ -121,6 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                                 }
 
                                                 let comment = document.createElement('div');
+                                                comment.append(document.createElement('b').innerText = item.login + ": ");
                                                 comment.append(document.createElement('p').innerText = item.comment);
                                                 commentDiv.append(comment);
                                                 console.log(comment);

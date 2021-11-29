@@ -102,7 +102,7 @@ function addComment(body) {
 }
 
 function getComments() {
-    const sql = "SELECT * FROM comments";
+    const sql = "SELECT users.login, CAST(comments.picture_id AS CHAR) picture_id, comments.comment FROM comments JOIN users ON comments.user_id = users.id";
 
     return new Promise((resolve, reject) => {
         global.services.dbPool.execute(
