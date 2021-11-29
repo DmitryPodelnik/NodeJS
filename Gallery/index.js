@@ -246,6 +246,25 @@ async function analyze(request, response) {
             });
         }
     }
+    else if (url == 'templates/picture1.tpl') {
+        if (!global.session || !global.session.user) {
+            sendFile(WWW_ROOT + "/templates/picture.tpl", response);
+        } else {
+            fs.readFile(WWW_ROOT + "/templates/picture_auth_yes.tpl", (err, data) => {
+                if (err) {
+                    console.log("/templates/picture_auth_yes.tpl: " + err);
+                    response.errorHandlers.send500();
+                }
+
+                let template = data.toString();
+                // template = template.replace('{{login}}', global.session.user.login)
+                //     .replace('{{email}}', global.session.user.email)
+                //     .replace('{{id_str}}', global.session.user.id_str);
+
+                response.end(template);
+            });
+        }
+    }
     else {
         // необработанный запрос - "не найдено" (404.html)
         sendFile(FILE_404, response, 404);

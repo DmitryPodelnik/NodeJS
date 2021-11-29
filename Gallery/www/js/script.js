@@ -69,16 +69,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             }
 
+            window.fetchUrl = url;
+
             fetch(url)
                 .then(r => r.text())
                 .then(t => {
-                    // console.log(t);
                     const j = JSON.parse(t); // или .then(r => r.json())
                     const cont = document.querySelector("#gallery-container");
 
-                    // вариант 4
-
-                    fetch("/templates/picture.tpl")
+                    fetch("/templates/picture1.tpl")
                         .then(r => r.text())
                         .then(tpl => {
                             let html = "";
@@ -96,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                             let lastPageNumber = document.getElementById('lastPageNumber');
                             lastPageNumber.innerText = window.galleryWindow.state.lastPage;
-                            
+
                             addToolButtonListeners();
                             document.dispatchEvent(new CustomEvent(
                                 "galleryWindowChange",
@@ -260,6 +259,7 @@ async function authUser(txt) {
             'max-age': 7200
         });
         loadAuthContainer();
+        loadGalleryContainer();
     }
     console.log(txt);
 }
@@ -322,7 +322,10 @@ async function authControls() {
         logBtn.addEventListener('click', () => {
             fetch(`/api/user?logout`)
                 .then(r => r.text())
-                .then(loadAuthContainer);
+                .then(() => {
+                    loadAuthContainer();
+                    loadGalleryContainer();
+                });
         });
         // selector - filter <select id="filter-shown"
         const filterShown = document.getElementById('filter-shown');
@@ -377,6 +380,46 @@ async function loadAuthContainer() {
             cont.innerHTML = tpl;  // tpl.replace("{{login}}", getCookie('login'));
             authControls();
         });
+}
+
+async function loadGalleryContainer() {
+    const cont = document.querySelector("#gallery-container");
+    if (!cont) {
+        throw "gallery-container not found";
+    }
+
+    fetch(window.fetchUrl)
+        .then(r => r.text())
+        .then(t => {
+            const j = JSON.parse(t); // или .then(r => r.json())
+            fetch('/templates/picture1.tpl')
+                .then(r => r.text())
+                .then(tpl => {
+
+                    let html = "";
+                    for (let p of j.data) {
+                        html += tpl.replace("{{id}}", p.id_str)
+                            .replace("{{title}}", p.title)
+                            .replace("{{description}}", p.description)
+                            .replace("{{place}}", p.place)
+                            .replace("{{filename}}", p.filename)
+                            .replace("{{rating}}", p.rating);
+                    }
+                    cont.innerHTML = html;
+                    window.galleryWindow.state.pageNumber = j.meta.currentPage;
+                    window.galleryWindow.state.lastPage = j.meta.lastPage;
+
+                    let lastPageNumber = document.getElementById('lastPageNumber');
+                    lastPageNumber.innerText = window.galleryWindow.state.lastPage;
+
+                    addToolButtonListeners();
+                    document.dispatchEvent(new CustomEvent(
+                        "galleryWindowChange",
+                        { detail: window.galleryWindow.state }
+                    ));
+                });
+        });
+    window.galleryWindow.changeState({ pageNumber: 1, userMode: 0 });
 }
 
 function filterShownChange(e) {
