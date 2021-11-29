@@ -153,8 +153,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                                         if (typeof comment.commentText !== 'undefined') {
                                                             commentText.removeAttribute('contenteditable');
                                                             editPic.innerText = ' [Edit]';
+                                                            if (comment.commentText !== commentText.innerText) {
+                                                                editComment(item.id, commentText.innerText);
+                                                            }
                                                             delete comment.commentText;
-                                                            editComment(item.id, commentText.innerText);
                                                         } else {
                                                             comment.commentText = commentText.innerText;
                                                             commentText.setAttribute('contenteditable', 'true');
