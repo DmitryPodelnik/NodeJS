@@ -122,7 +122,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                                                 let comment = document.createElement('div');
                                                 comment.append(document.createElement('b').innerText = item.login + ": ");
-                                                comment.append(document.createElement('p').innerText = item.comment);
+                                                let commentText = document.createElement('p');
+                                                commentText.innerText = item.comment;
+                                                comment.append(commentText);
 
                                                 const userId = findUserId();
                                                 if (userId == item.user_id) {
@@ -136,7 +138,28 @@ document.addEventListener("DOMContentLoaded", () => {
                                                         removeComment(item.id);
                                                     };
 
+                                                    let editPic = document.createElement('span');
+                                                    if (!editPic) {
+                                                        throw "Data transfer error: editPic not found";
+                                                    }
+                                                    editPic.innerText = '   [Edit]';
+                                                    editPic.style.cursor = 'pointer';                                             
+                                                    editPic.onclick = () => {
+                                                        // editComment(item.id);
+                                                        if (typeof comment.commentText !== 'undefined') {
+                                                            commentText.removeAttribute('contenteditable');
+                                                            editPic.innerText = '   [Edit]';
+                                                            delete comment.commentText;
+                                                        } else {
+                                                            comment.commentText = commentText.innerText;
+                                                            commentText.setAttribute('contenteditable', 'true');
+                                                            editPic.innerText = '   [Save]';
+                                                            commentText.focus();
+                                                        }
+                                                    };
+
                                                     comment.append(removePic);
+                                                    comment.append(editPic);
                                                 }
 
                                                 commentDiv.append(comment);
@@ -152,6 +175,19 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     window.galleryWindow.changeState({ pageNumber: 1, userMode: 0 });
 });
+
+function editComment(commentId) {
+    fetch(`/api/comments?commentId=${commentId}`, {
+        method: "PUT",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+        .then(() => {
+            console.log("edited!");
+            loadGalleryContainer();
+        });
+}
 
 function removeComment(commentId) {
     if (!confirm('Are you sure you want to remove your comment?')) {
