@@ -452,7 +452,6 @@ function voteHandler(e) {
 }
 function setVotesHandlers() {
     for (let v of document.querySelectorAll('.vote-like, .vote-dislike')) {
-        // element.addEventListener(like)
         v.onclick = voteHandler;
     }
 }

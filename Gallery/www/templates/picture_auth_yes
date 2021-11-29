@@ -13,5 +13,9 @@
         <span class="tb-edit"></span>
         <span class="tb-download"></span>
     </section>
+    <form>
+        <label><span>Комментарий: </span><input type="text" name="comment" /></label>
+        <button>Отправить</button>
+    </form>
     <div id="pictures-comments"></div>
 </div>
