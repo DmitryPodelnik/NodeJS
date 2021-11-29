@@ -427,11 +427,9 @@ function voteHandler(e) {
     let vote = e.target.classList.contains("vote-dislike")
         ? -1
         : 1;
-    // user_id
+
     const userId = findUserId();
-    // picture_id
     const pictire_id = e.target.closest("[picId]").getAttribute("picId");
-    // console.log(userId, pictureId, vote);
 
     fetch("/api/votes", {
         method: "post",
@@ -444,8 +442,13 @@ function voteHandler(e) {
             "vote": vote,
         })
     })
-        .then(r => r.text())
-        .then(console.log);
+        .then(r => r.json())
+        .then(r => {
+            if (r.result == 1) {
+                let votes = e.target.closest(".vote").querySelector('.vote-total');
+                votes.innerText = +votes.innerText + vote;
+            }
+        });
 }
 function setVotesHandlers() {
     for (let v of document.querySelectorAll('.vote-like, .vote-dislike')) {
