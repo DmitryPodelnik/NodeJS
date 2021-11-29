@@ -63,7 +63,14 @@ function doPut(request, response) {
 }
 
 function doDelete(request, response) {
+    deleteComment(request)
+    .then(res => {
+        //console.log(res);
 
+        response.end(JSON.stringify({
+            "result": res.affectedRows,
+        }));
+    });
 }
 
 function doOptions(request, response) {
@@ -81,6 +88,24 @@ function validateOrm(body) {
             resolve(body);
         }
     });
+}
+
+function deleteComment(request) {
+    const sql = "DELETE FROM comments WHERE id = ?";
+    // console.log(request.params.query.commentId);
+ 
+     return new Promise((resolve, reject) => {
+         global.services.dbPool.execute(
+             sql,
+             [request.params.query.commentId],
+             (err, results) => {
+                 if (err) {
+                     reject(err);
+                 } else {
+                     resolve(results);
+                 }
+             })
+     });
 }
 
 function addComment(body) {
@@ -102,7 +127,7 @@ function addComment(body) {
 }
 
 function getComments() {
-    const sql = "SELECT users.login, CAST(comments.picture_id AS CHAR) picture_id, comments.comment FROM comments JOIN users ON comments.user_id = users.id";
+    const sql = "SELECT CAST(comments.id AS CHAR) id, users.login, CAST(comments.user_id AS CHAR) user_id, CAST(comments.picture_id AS CHAR) picture_id, comments.comment FROM comments JOIN users ON comments.user_id = users.id";
 
     return new Promise((resolve, reject) => {
         global.services.dbPool.execute(

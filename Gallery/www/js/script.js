@@ -123,6 +123,22 @@ document.addEventListener("DOMContentLoaded", () => {
                                                 let comment = document.createElement('div');
                                                 comment.append(document.createElement('b').innerText = item.login + ": ");
                                                 comment.append(document.createElement('p').innerText = item.comment);
+
+                                                const userId = findUserId();
+                                                if (userId == item.user_id) {
+                                                    let removePic = document.createElement('span');
+                                                    if (!removePic) {
+                                                        throw "Data transfer error: removePic not found";
+                                                    }
+                                                    removePic.innerText = '   [X]';
+                                                    removePic.style.cursor = 'pointer';
+                                                    removePic.onclick = () => {
+                                                        removeComment(item.id);
+                                                    };
+
+                                                    comment.append(removePic);
+                                                }
+
                                                 commentDiv.append(comment);
                                                 console.log(comment);
 
@@ -136,6 +152,22 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     window.galleryWindow.changeState({ pageNumber: 1, userMode: 0 });
 });
+
+function removeComment(commentId) {
+    if (!confirm('Are you sure you want to remove your comment?')) {
+        return;
+    }
+    fetch(`/api/comments?commentId=${commentId}`, {
+        method: "DELETE",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+        .then(() => {
+            console.log("successful deleted!");
+            loadGalleryContainer();
+        });
+}
 
 async function addToolButtonListeners() {
     for (let b of document.querySelectorAll('.tb-delete')) {
@@ -592,6 +624,7 @@ function addComment(e) {
         .then(res => {
             let data = JSON.parse(res);
             console.log(res);
+            loadGalleryContainer();
         })
         .catch(err => {
             alert(err);
