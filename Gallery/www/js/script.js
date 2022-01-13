@@ -24,8 +24,10 @@ document.addEventListener("submit", (e) => {
     fetch("/api/picture", {
         method: "POST",
         body: formData  // new URLSearchParams(formData).toString()
-    }).then(r => r.text()).then(console.log);
-
+    }).then(r => r.text()).then(r => {
+        console.log(r);
+        loadGalleryContainer();
+    });
 });
 
 function findUserId() {
@@ -147,9 +149,9 @@ document.addEventListener("DOMContentLoaded", () => {
                                                         throw "Data transfer error: editPic not found";
                                                     }
                                                     editPic.innerText = ' [Edit]';
-                                                    editPic.style.cursor = 'pointer';                                             
+                                                    editPic.style.cursor = 'pointer';
                                                     editPic.onclick = () => {
-                                                        
+
                                                         if (typeof comment.commentText !== 'undefined') {
                                                             commentText.removeAttribute('contenteditable');
                                                             editPic.innerText = ' [Edit]';
@@ -263,11 +265,11 @@ function tbEditClick(e) {
     const picId = div.getAttribute('picId');
     console.log(picId);
 
-    const place = div.querySelector('i > span');
+    const place = div.querySelector('i');
     if (!place) {
         throw "EditClick: place(<i>) not found";
     }
-    const description = div.querySelector('p > span');
+    const description = div.querySelector('p');
     if (!description) {
         throw "EditClick: description(<p>) not found";
     }
@@ -324,7 +326,6 @@ function tbEditClick(e) {
         description.removeAttribute('contenteditable');
         div.querySelector('.tb-save').className = 'tb-edit';
     }
-
 }
 
 document.addEventListener('keydown', (e) => {
@@ -576,26 +577,28 @@ function voteHandler(e) {
         : 1;
 
     const userId = findUserId();
-    const pictire_id = e.target.closest("[picId]").getAttribute("picId");
+    const picture_id = e.target.closest("[picId]").getAttribute("picId");
+    let votes = e.target.closest(".vote").querySelector('.vote-total');
 
-    fetch("/api/votes", {
-        method: "post",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            "users_id": userId,
-            "pictire_id": pictire_id,
-            "vote": vote,
+    if (!(+votes.innerText === 0 && vote === -1)) {
+        fetch("/api/votes", {
+            method: "post",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "users_id": userId,
+                "picture_id": picture_id,
+                "vote": vote,
+            })
         })
-    })
-        .then(r => r.json())
-        .then(r => {
-            if (r.result == 1) {
-                let votes = e.target.closest(".vote").querySelector('.vote-total');
-                votes.innerText = +votes.innerText + vote;
-            }
-        });
+            .then(r => r.json())
+            .then(r => {
+                if (r.result == 1) {
+                    votes.innerText = +votes.innerText + vote;
+                }
+            });
+    }
 }
 
 function setVotesHandlers() {

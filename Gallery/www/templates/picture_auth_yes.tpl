@@ -1,4 +1,4 @@
-<div class="picture-item" picId="{{id}}">
+<div class="picture-item" picId="{{id}}" style="min-height: 200px; min-width: 200px;">
     <div class="vote">
         <div class="vote-like">&#8593;</div>
         <div class="vote-total">{{rating}}</div>

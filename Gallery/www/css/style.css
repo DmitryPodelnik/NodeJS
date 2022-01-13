@@ -79,6 +79,9 @@ body {
 .tb-recover {
     background-position: 0 50%;
 }
+.tb-save {
+    background-position: 50% 50%;
+}
 
 .user-block {
     background-color: darkkhaki;

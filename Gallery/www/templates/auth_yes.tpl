@@ -9,3 +9,11 @@
             <option value="2">Except own</option>
         </select>    
     </div>
+    <form class="add-image-form">
+        <cite>Добавить изображение</cite>
+        <label><span>Название: </span><input type="text" name="title"        /></label>
+        <label><span>Описание: </span><input type="text" name="description"  /></label>
+        <label><span>Место:    </span><input type="text" name="place"        /></label>
+        <label><span>Файл:     </span><input type="file" name="picture"      /></label>
+        <button>Загрузить</button>
+    </form>

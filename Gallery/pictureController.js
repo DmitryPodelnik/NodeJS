@@ -97,11 +97,11 @@ function doGet(request, response) {
                 SELECT p.*, CAST(p.id AS CHAR) id_str, COALESCE(v.rating, 0) rating, COALESCE(v.votes, 0) votes
                 FROM pictures p
                 LEFT JOIN (
-                    SELECT pictire_id, SUM(vote) rating, COUNT(id) votes
+                    SELECT picture_id, SUM(vote) rating, COUNT(id) votes
                     FROM votes
-                    GROUP BY pictire_id
+                    GROUP BY picture_id
                     ) v
-                  ON p.id = v.pictire_id ` + conditions + limits;
+                  ON p.id = v.picture_id ` + conditions + limits;
 
                 request.services.dbPool.query(
                     picQuery,

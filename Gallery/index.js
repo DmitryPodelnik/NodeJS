@@ -670,9 +670,24 @@ function viewDownload(request, response) {
         description TEXT,
         place VARCHAR(256),
         filename    VARCHAR(256) NOT NULL,
-        users_id    BIGINT,                                 -- uploader ID
-        uploadDT    DATETIME DEFAULT CURRENT_TIMESTAMP,     -- upload Date/time
-        deleteDT    DATETIME,                                -- delete date/time
+        users_id    BIGINT,                                
+        upload_DT    DATETIME DEFAULT CURRENT_TIMESTAMP,     
+        delete_DT    DATETIME                                
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+
+
+    CREATE TABLE votes (
+        id          BIGINT DEFAULT UUID_SHORT() PRIMARY KEY,
+        users_id    BIGINT,                                
+        picture_id  BIGINT,        
+        vote        BIGINT               
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+
+    CREATE TABLE comments (
+        id          BIGINT DEFAULT UUID_SHORT() PRIMARY KEY,
+        user_id     BIGINT,                                
+        picture_id  BIGINT,        
+        comment     TEXT               
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
  */
 

@@ -65,7 +65,7 @@ function doOptions(request, response) {
 
 function validateOrm(body) {
     return new Promise((resolve, reject) => {
-        const orm = ["users_id", "pictire_id", "vote"];
+        const orm = ["users_id", "picture_id", "vote"];
 
         for (let prop in body) {
             if (orm.indexOf(prop) == -1) {
@@ -77,8 +77,8 @@ function validateOrm(body) {
 }
 
 function addVote(body) {
-    const params = [body.users_id, body.pictire_id, body.vote];
-    const sql = "INSERT INTO votes (users_id, pictire_id, vote) VALUES(?, ?, ?)";
+    const params = [body.users_id, body.picture_id, body.vote];
+    const sql = "INSERT INTO votes (users_id, picture_id, vote) VALUES(?, ?, ?)";
 
 
     return new Promise((resolve, reject) => {
